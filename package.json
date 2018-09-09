@@ -16,6 +16,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
+    "cookie-parser": "^1.4.3",
     "element-ui": "^2.4.6",
     "mavon-editor": "^2.6.17",
     "quill": "^1.3.6",

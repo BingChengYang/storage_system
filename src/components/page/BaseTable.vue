@@ -17,12 +17,27 @@
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="date" label="日期" sortable width="150">
+              <!--   <el-table-column prop="date" label="日期" sortable width="150">
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" width="120">
                 </el-table-column>
                 <el-table-column prop="address" label="地址" :formatter="formatter">
+                </el-table-column> -->
+                <el-table-column prop="name" label="品名" width="120">
                 </el-table-column>
+                <el-table-column prop="brand" label="品牌" width="120">
+                </el-table-column>
+                <el-table-column prop="price" label="價錢" sortable width="120">
+                </el-table-column>
+                <el-table-column prop="quantity" label="數量" sortable width="120">
+                </el-table-column>
+                <el-table-column prop="size" label="尺寸" sortable width="120">
+                </el-table-column>
+                <el-table-column prop="color" label="顏色" width="120">
+                </el-table-column>
+                <el-table-column prop="imgLink" label="產品圖片連結" width="120">
+                </el-table-column>
+
                 <el-table-column label="操作" width="180">
                     <template slot-scope="scope">
                         <el-button size="small" @click="handleEdit(scope.$index, scope.row)">編輯</el-button>
@@ -31,7 +46,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
+                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="100">
                 </el-pagination>
             </div>
         </div>
@@ -39,7 +54,7 @@
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
-                <el-form-item label="日期">
+                <!-- <el-form-item label="日期">
                     <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
                 </el-form-item>
                 <el-form-item label="姓名">
@@ -47,6 +62,27 @@
                 </el-form-item>
                 <el-form-item label="地址">
                     <el-input v-model="form.address"></el-input>
+                </el-form-item> -->
+                <el-form-item label="品名">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="品牌">
+                    <el-input v-model="form.brand"></el-input>
+                </el-form-item>
+                <el-form-item label="價錢">
+                    <el-input v-model="form.price"></el-input>
+                </el-form-item>
+                <el-form-item label="數量">
+                    <el-input v-model="form.quantity"></el-input>
+                </el-form-item>
+                <el-form-item label="尺寸">
+                    <el-input v-model="form.size"></el-input>
+                </el-form-item>
+                <el-form-item label="顏色">
+                    <el-input v-model="form.color"></el-input>
+                </el-form-item>
+                <el-form-item label="產品圖片連結">
+                    <el-input v-model="form.imgLink"></el-input>
                 </el-form-item>
 
             </el-form>
@@ -124,12 +160,13 @@
             getData() {
                 // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
                 if (process.env.NODE_ENV === 'development') {
-                    this.url = '/ms/table/list';
+                    this.url = '/server';
                 };
                 this.$axios.post(this.url, {
                     page: this.cur_page
                 }).then((res) => {
                     this.tableData = res.data.list;
+                    console.log(this.tableData);
                 })
             },
             search() {
