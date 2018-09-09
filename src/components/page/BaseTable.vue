@@ -23,19 +23,19 @@
                 </el-table-column>
                 <el-table-column prop="address" label="地址" :formatter="formatter">
                 </el-table-column> -->
-                <el-table-column prop="name" label="品名" width="120">
+                <el-table-column prop="name" label="品名" width="50">
                 </el-table-column>
-                <el-table-column prop="brand" label="品牌" width="120">
+                <el-table-column prop="brand" label="品牌" width="80">
                 </el-table-column>
-                <el-table-column prop="price" label="價錢" sortable width="120">
+                <el-table-column prop="price" label="價錢" sortable width="50">
                 </el-table-column>
-                <el-table-column prop="quantity" label="數量" sortable width="120">
+                <el-table-column prop="quantity" label="數量" sortable width="50">
                 </el-table-column>
-                <el-table-column prop="size" label="尺寸" sortable width="120">
+                <el-table-column prop="size" label="尺寸" sortable width="50">
                 </el-table-column>
-                <el-table-column prop="color" label="顏色" width="120">
+                <el-table-column prop="color" label="顏色" width="50">
                 </el-table-column>
-                <el-table-column prop="imgLink" label="產品圖片連結" width="120">
+                <el-table-column prop="imgLink" label="產品圖片連結" width="80">
                 </el-table-column>
 
                 <el-table-column label="操作" width="180">
@@ -46,7 +46,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="100">
+                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="tableLength">
                 </el-pagination>
             </div>
         </div>
@@ -127,7 +127,8 @@
                     color: '',
                     imgLink: ''
                 },
-                idx: -1
+                idx: -1,
+                tableLength: -1
             }
         },
         created() {
@@ -135,24 +136,23 @@
         },
         computed: {
             data() {
-                // return this.tableData.filter((d) => {
-                //     let is_del = false;
-                //     for (let i = 0; i < this.del_list.length; i++) {
-                //         if (d.name === this.del_list[i].name) {
-                //             is_del = true;
-                //             break;
-                //         }
-                //     }
-                //     if (!is_del) {
-                //         if (d.address.indexOf(this.select_cate) > -1 &&
-                //             (d.name.indexOf(this.select_word) > -1 ||
-                //                 d.address.indexOf(this.select_word) > -1)
-                //         ) {
-                //             return d;
-                //         }
-                //     }
-                // })
-                return this.tableData;
+                return this.tableData.filter((d) => {
+                    let is_del = false;
+                    for (let i = 0; i < this.del_list.length; i++) {
+                        if (d.name === this.del_list[i].name) {
+                            is_del = true;
+                            break;
+                        }
+                    }
+                    if (!is_del) {
+                        if (d.brand.indexOf(this.select_cate) > -1 &&
+                            (d.name.indexOf(this.select_word) > -1 ||
+                                d.brand.indexOf(this.select_word) > -1)
+                        ) {
+                            return d;
+                        }
+                    }
+                })
             }
         },
         methods: {
@@ -171,6 +171,7 @@
                     page: this.cur_page
                 }).then((res) => {
                     this.tableData = res.data;
+                    this.tableLength=this.tableData.length;
                     console.log(this.tableData);
                 })
             },
@@ -188,8 +189,12 @@
                 const item = this.tableData[index];
                 this.form = {
                     name: item.name,
-                    date: item.date,
-                    address: item.address
+                    brand: item.brand,
+                    price: item.price,
+                    quantity: item.quantity,
+                    size: item.size,
+                    color: item.color,
+                    imgLink: item.imgLink
                 }
                 this.editVisible = true;
             },
