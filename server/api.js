@@ -91,7 +91,7 @@ const fn = () => {}
 //   res.status(200).end()
 // })
 
-router.get('/', (req, res) => {
+router.post('/', (req, res) => {
   var storageList = [];
   storageList[0] = {
     "name" : "GGG",

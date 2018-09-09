@@ -120,8 +120,12 @@
                 delVisible: false,
                 form: {
                     name: '',
-                    date: '',
-                    address: ''
+                    brand: '',
+                    price: '',
+                    quantity: '',
+                    size: '',
+                    color: '',
+                    imgLink: ''
                 },
                 idx: -1
             }
@@ -165,7 +169,7 @@
                 this.$axios.post(this.url, {
                     page: this.cur_page
                 }).then((res) => {
-                    this.tableData = res.data.list;
+                    this.tableData = res.data;
                     console.log(this.tableData);
                 })
             },

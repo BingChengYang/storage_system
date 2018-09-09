@@ -23,8 +23,8 @@ module.exports = {
       //     changeOrigin: true
       // },
       '/server':{
-        target: 'http://127.0.0.1:3000',
-        rewrite: {'^/server': '/'},
+        target: 'http://127.0.0.1:3000', //server who provide api
+        pathRewrite: {'^/server': ''}, // 127.0.0.1:8080/server -> 127.0.0.1:3000
         changeOrigin: true,
       }
 
