@@ -58,12 +58,12 @@ export default new Router({
                     component: resolve => require(['../components/page/BaseCharts.vue'], resolve),
                     meta: { title: '報表' }
                 },
-                // {
-                //     // 拖拽列表组件
-                //     path: '/drag',
-                //     component: resolve => require(['../components/page/DragList.vue'], resolve),
-                //     meta: { title: '拖拽列表' }
-                // },
+                {
+                    // 拖拽列表组件
+                    path: '/drag',
+                    component: resolve => require(['../components/page/DragList.vue'], resolve),
+                    meta: { title: '拖拽列表' }
+                },
                 // {
                 //     // 权限页面
                 //     path: '/permission',

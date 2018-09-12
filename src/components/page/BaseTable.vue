@@ -81,9 +81,15 @@
                 <el-form-item label="顏色">
                     <el-input v-model="form.color"></el-input>
                 </el-form-item>
-                <el-form-item label="產品圖片連結">
-                    <el-input v-model="form.imgLink"></el-input>
-                </el-form-item>
+                <el-form-upload
+                    class="avatar-uploader"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                    :before-upload="beforeAvatarUpload">
+                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-form-upload>
 
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -128,7 +134,8 @@
                     imgLink: ''
                 },
                 idx: -1,
-                tableLength: -1
+                tableLength: -1,
+                imageUrl: ''
             }
         },
         created() {
@@ -165,7 +172,7 @@
             getData() {
                 // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
                 if (process.env.NODE_ENV === 'development') {
-                    this.url = '/server';
+                    this.url = '/server/getStorageList';
                 };
                 this.$axios.post(this.url, {
                     page: this.cur_page
@@ -226,6 +233,24 @@
                 this.tableData.splice(this.idx, 1);
                 this.$message.success('刪除成功');
                 this.delVisible = false;
+            },
+
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+            },
+
+            // upload product Img
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG) {
+                  this.$message.error('上传头像图片只能是 JPG 格式!');
+                }
+                if (!isLt2M) {
+                  this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isJPG && isLt2M;
             }
         }
     }
@@ -249,4 +274,5 @@
         font-size: 16px;
         text-align: center
     }
+
 </style>

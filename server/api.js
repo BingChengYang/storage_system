@@ -91,16 +91,18 @@ const fn = () => {}
 //   res.status(200).end()
 // })
 
-router.post('/', (req, res) => {
+router.post('/getStorageList', (req, res) => {
   var storageList = [];
-  storageList[0] = {
-    "name" : "GGG",
-    "brand" : "supreme",
-    "price" : "50",
-    "quantity" : "10",
-    "size" : "L",
-    "color" : "red",
-    "imgLink" : ""
+  for(var i=0;i<100;i++){
+    storageList[i] = {
+      "name" : "GGG",
+      "brand" : "supreme",
+      "price" : (100-i),
+      "quantity" : i,
+      "size" : "L",
+      "color" : "red",
+      "imgLink" : ""
+    }
   }
   res.send(storageList);
 })
