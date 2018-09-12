@@ -146,7 +146,7 @@
                 return this.tableData.filter((d) => {
                     let is_del = false;
                     for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.name === this.del_list[i].name) {
+                        if (d.name === this.del_list[i].name && d.brand === this.del_list[i].brand && d.price === this.del_list[i].price && d.quantity === this.del_list[i].quantity && d.size === this.del_list[i].size && d.color === this.del_list[i].color && d.imgLink === this.del_list[i].imgLink) {
                             is_del = true;
                             break;
                         }
@@ -209,7 +209,7 @@
                 this.idx = index;
                 this.delVisible = true;
             },
-            delAll() {
+            delAll() {// here is a bug , delete_list need to be object list;
                 const length = this.multipleSelection.length;
                 let str = '';
                 this.del_list = this.del_list.concat(this.multipleSelection);
