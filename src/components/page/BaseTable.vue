@@ -15,7 +15,7 @@
                 <el-input v-model="select_word" placeholder="關鍵字查詢" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="search" @click="search">查詢</el-button>
             </div>
-            <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
+            <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='tableChange'>
                 <el-table-column type="selection" width="55"></el-table-column>
               <!--   <el-table-column prop="date" label="日期" sortable width="150">
                 </el-table-column>
@@ -27,11 +27,11 @@
                 </el-table-column>
                 <el-table-column prop="brand" label="品牌" width="80">
                 </el-table-column>
-                <el-table-column prop="price" label="價錢" sortable width="50">
+                <el-table-column prop="price" label="價錢" sortable="custom" width="50">
                 </el-table-column>
-                <el-table-column prop="quantity" label="數量" sortable width="50">
+                <el-table-column prop="quantity" label="數量" sortable="custom" width="50">
                 </el-table-column>
-                <el-table-column prop="size" label="尺寸" sortable width="50">
+                <el-table-column prop="size" label="尺寸" sortable="custom" width="50">
                 </el-table-column>
                 <el-table-column prop="color" label="顏色" width="50">
                 </el-table-column>
@@ -135,7 +135,12 @@
                 },
                 idx: -1,
                 tableLength: -1,
-                imageUrl: ''
+                imageUrl: '',
+
+                sortKey: '',
+                sortOrder: '',
+                isSort: false,
+
             }
         },
         created() {
@@ -175,12 +180,15 @@
                     this.url = '/server/getStorageList';
                 };
                 this.$axios.post(this.url, {
-                    page: this.cur_page
+                    page: this.cur_page,
+                    isSort: this.isSort,
+                    sortKey: this.sortKey,
+                    sortOrder: this.sortOrder
                 }).then((res) => {
-                    this.tableData = res.data;
-                    this.tableLength=this.tableData.length;
-                    console.log(this.tableData);
-                })
+                    this.tableData = res.data.list;
+                    this.tableLength=res.data.totalDataNum;
+                    //console.log(this.tableData);
+                });
             },
             search() {
                 this.is_search = true;
@@ -233,6 +241,16 @@
                 this.tableData.splice(this.idx, 1);
                 this.$message.success('刪除成功');
                 this.delVisible = false;
+            },
+
+            tableChange:function(column,prop,order){
+                this.isSort = true;
+                this.sortOrder = column.order;
+                this.sortKey = column.prop;
+                console.log(column)
+                console.log(column.prop)
+                console.log(column.order)
+                this.getData();
             },
 
             handleAvatarSuccess(res, file) {

@@ -92,19 +92,42 @@ const fn = () => {}
 // })
 
 router.post('/getStorageList', (req, res) => {
-  var storageList = [];
-  for(var i=0;i<100;i++){
-    storageList[i] = {
-      "name" : "GGG",
-      "brand" : "supreme",
-      "price" : (100-i),
-      "quantity" : i,
-      "size" : "L",
-      "color" : "red",
-      "imgLink" : ""
-    }
-  }
-  res.send(storageList);
+	var pageSize = 10;
+	console.log(req.body);
+	var storageList = [];
+	var sortType;
+	for(var i=0;i<100;i++){
+		storageList[i] = {
+			"name" : "GGG",
+			"brand" : "supreme",
+			"price" : (100-i),
+			"quantity" : i,
+			"size" : "L",
+			"color" : "red",
+			"imgLink" : ""
+			}
+	}
+	if(req.body.isSort == true){
+		storageList.sort(function(a,b){
+			sortType = req.body.sortKey;
+			keyA = a.sortType;
+			keyB = b.sortType;
+
+			if(req.body.sortOrder == "descending")
+				return keyA - keyB;
+			else if(req.body.sortOrder == "ascending")
+				return keyB - keyA;
+		});
+
+	}
+
+	res.send(
+		{ 
+			"list":storageList.slice(pageSize*(req.body.page-1), (pageSize*req.body.page)-1),
+			"totalDataNum":storageList.length
+		}
+	);
+	
 })
 
 module.exports = router
