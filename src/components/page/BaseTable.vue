@@ -31,7 +31,7 @@
                 </el-table-column>
                 <el-table-column prop="quantity" label="數量" sortable="custom" width="50">
                 </el-table-column>
-                <el-table-column prop="size" label="尺寸" sortable="custom" width="50">
+                <el-table-column prop="size" label="尺寸" width="50">
                 </el-table-column>
                 <el-table-column prop="color" label="顏色" width="50">
                 </el-table-column>

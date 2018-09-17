@@ -3,6 +3,8 @@ const router = express.Router()
 //const db = require('./db')
 const fn = () => {}
 
+var debugMode = 0; // 0 don't show log , 1 show log
+
 // router.get('/api/getArticle', (req, res) => {
 //   const _id = req.query.id
 //   db.Article.findOne({_id}, (err, doc) => {
@@ -93,9 +95,7 @@ const fn = () => {}
 
 router.post('/getStorageList', (req, res) => {
 	var pageSize = 10;
-	console.log(req.body);
 	var storageList = [];
-	var sortType;
 	for(var i=0;i<100;i++){
 		storageList[i] = {
 			"name" : "GGG",
@@ -107,18 +107,24 @@ router.post('/getStorageList', (req, res) => {
 			"imgLink" : ""
 			}
 	}
+	if(debugMode == 1){
+		console.log(req.body);
+	}
 	if(req.body.isSort == true){
 		storageList.sort(function(a,b){
-			sortType = req.body.sortKey;
-			keyA = a.sortType;
-			keyB = b.sortType;
+			if(req.body.sortKey == "price"){
+				keyA = a.price;
+				keyB = b.price;
+			}else if(req.body.sortKey == "quantity"){
+				keyA = a.quantity;
+				keyB = b.quantity;
+			}
 
 			if(req.body.sortOrder == "descending")
-				return keyA - keyB;
-			else if(req.body.sortOrder == "ascending")
 				return keyB - keyA;
+			else if(req.body.sortOrder == "ascending")
+				return keyA - keyB;
 		});
-
 	}
 
 	res.send(
