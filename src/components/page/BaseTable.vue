@@ -16,29 +16,37 @@
                 <el-button type="primary" icon="search" @click="search">查詢</el-button>
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='tableChange'>
-                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column type="selection" min-width="55"></el-table-column>
               <!--   <el-table-column prop="date" label="日期" sortable width="150">
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" width="120">
                 </el-table-column>
                 <el-table-column prop="address" label="地址" :formatter="formatter">
                 </el-table-column> -->
-                <el-table-column prop="name" label="品名" width="50">
+                <el-table-column prop="pName" label="品名" min-width="50">
                 </el-table-column>
-                <el-table-column prop="brand" label="品牌" width="80">
+                <el-table-column prop="pLocation" label="所在地" min-width="50">
                 </el-table-column>
-                <el-table-column prop="price" label="價錢" sortable="custom" width="50">
+                <el-table-column prop="pSeason" label="季度" min-width="50">
                 </el-table-column>
-                <el-table-column prop="quantity" label="數量" sortable="custom" width="50">
+                <el-table-column prop="pType" label="種類" min-width="50">
                 </el-table-column>
-                <el-table-column prop="size" label="尺寸" width="50">
+                <el-table-column prop="pCost" label="成本" sortable="custom" min-width="50">
+                </el-table-column>                
+                <el-table-column prop="pPrice" label="售價" sortable="custom" min-width="50">
                 </el-table-column>
-                <el-table-column prop="color" label="顏色" width="50">
+                <el-table-column prop="pQuantity" label="數量" sortable="custom" min-width="50">
                 </el-table-column>
-                <el-table-column prop="imgLink" label="產品圖片連結" width="80">
+                <el-table-column prop="pSize" label="尺寸" min-width="50">
+                </el-table-column>
+                <el-table-column prop="pColor" label="顏色" min-width="50">
+                </el-table-column>
+                <el-table-column prop="pImg" label="產品圖片連結" min-width="80">
+                </el-table-column>
+                <el-table-column prop="pNote" label="產品介紹連結" min-width="80">
                 </el-table-column>
 
-                <el-table-column label="操作" width="180">
+                <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
                         <el-button size="small" @click="handleEdit(scope.$index, scope.row)">編輯</el-button>
                         <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">刪除</el-button>
@@ -54,34 +62,34 @@
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
-                <!-- <el-form-item label="日期">
-                    <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
-                </el-form-item>
-                <el-form-item label="姓名">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
-                <el-form-item label="地址">
-                    <el-input v-model="form.address"></el-input>
-                </el-form-item> -->
                 <el-form-item label="品名">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.pName"></el-input>
                 </el-form-item>
-                <el-form-item label="品牌">
-                    <el-input v-model="form.brand"></el-input>
+                <el-form-item label="所在地">
+                    <el-input v-model="form.pLocation"></el-input>
                 </el-form-item>
-                <el-form-item label="價錢">
-                    <el-input v-model="form.price"></el-input>
+                <el-form-item label="季度">
+                    <el-input v-model="form.pSeason"></el-input>
+                </el-form-item>
+                <el-form-item label="種類">
+                    <el-input v-model="form.pType"></el-input>
+                </el-form-item>
+                <el-form-item label="成本">
+                    <el-input v-model="form.pCost"></el-input>
+                </el-form-item>
+                <el-form-item label="售價">
+                    <el-input v-model="form.pPrice"></el-input>
                 </el-form-item>
                 <el-form-item label="數量">
-                    <el-input v-model="form.quantity"></el-input>
+                    <el-input v-model="form.pQuantity"></el-input>
                 </el-form-item>
                 <el-form-item label="尺寸">
-                    <el-input v-model="form.size"></el-input>
+                    <el-input v-model="form.pSize"></el-input>
                 </el-form-item>
                 <el-form-item label="顏色">
-                    <el-input v-model="form.color"></el-input>
+                    <el-input v-model="form.pColor"></el-input>
                 </el-form-item>
-                <el-form-upload
+                <!-- <el-form-upload
                     class="avatar-uploader"
                     action="https://jsonplaceholder.typicode.com/posts/"
                     :show-file-list="false"
@@ -89,7 +97,7 @@
                     :before-upload="beforeAvatarUpload">
                   <img v-if="imageUrl" :src="imageUrl" class="avatar">
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-form-upload>
+                </el-form-upload> -->
 
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -125,13 +133,17 @@
                 editVisible: false,
                 delVisible: false,
                 form: {
-                    name: '',
-                    brand: '',
-                    price: '',
-                    quantity: '',
-                    size: '',
-                    color: '',
-                    imgLink: ''
+                    pName: '',
+                    pLocation: '',
+                    pSeason: '',
+                    pType: '',
+                    pCost: '',
+                    pPrice: '',
+                    pQuantity: '',
+                    pSize: '',
+                    pColor: '',
+                    pImg: '',
+                    pNote:''
                 },
                 idx: -1,
                 tableLength: -1,
@@ -151,18 +163,18 @@
                 return this.tableData.filter((d) => {
                     let is_del = false;
                     for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.name === this.del_list[i].name && d.brand === this.del_list[i].brand && d.price === this.del_list[i].price && d.quantity === this.del_list[i].quantity && d.size === this.del_list[i].size && d.color === this.del_list[i].color && d.imgLink === this.del_list[i].imgLink) {
+                        if (d.pName === this.del_list[i].pName && d.pLocation === this.del_list[i].pLocation && d.pPrice === this.del_list[i].pPrice && d.pQuantity === this.del_list[i].pQuantity && d.pSize === this.del_list[i].pSize && d.pColor === this.del_list[i].pColor && d.pImg === this.del_list[i].pImg && d.pNote === this.del_list[i].pNote && d.pCost === this.del_list[i].pCost) {
                             is_del = true;
                             break;
                         }
                     }
                     if (!is_del) {
-                        if (d.brand.indexOf(this.select_cate) > -1 &&
-                            (d.name.indexOf(this.select_word) > -1 ||
-                                d.brand.indexOf(this.select_word) > -1)
-                        ) {
-                            return d;
-                        }
+                        // if (d.brand.indexOf(this.select_cate) > -1 &&
+                        //     (d.name.indexOf(this.select_word) > -1 ||
+                        //         d.brand.indexOf(this.select_word) > -1)
+                        // ) {
+                        return d;
+                        // }
                     }
                 })
             }
@@ -187,7 +199,7 @@
                 }).then((res) => {
                     this.tableData = res.data.list;
                     this.tableLength=res.data.totalDataNum;
-                    //console.log(this.tableData);
+                    console.log(this.tableData);
                 });
             },
             search() {
@@ -203,13 +215,17 @@
                 this.idx = index;
                 const item = this.tableData[index];
                 this.form = {
-                    name: item.name,
-                    brand: item.brand,
-                    price: item.price,
-                    quantity: item.quantity,
-                    size: item.size,
-                    color: item.color,
-                    imgLink: item.imgLink
+                    pName: item.pName,
+                    pLocation: item.pLocation,
+                    pSeason: item.pSeason,
+                    pType: item.pType,
+                    pCost: item.pCost,
+                    pPrice: item.pPrice,
+                    pQuantity: item.pQuantity,
+                    pSize: item.pSize,
+                    pColor: item.pColor,
+                    pImg: item.pImg,
+                    pNote: item.pNote
                 }
                 this.editVisible = true;
             },
