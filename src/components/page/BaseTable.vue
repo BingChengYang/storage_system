@@ -8,9 +8,10 @@
         <div class="container">
             <div class="handle-box">
                 <el-button type="primary" icon="delete" class="handle-del mr10" @click="delAll">刪除多筆資料</el-button>
-                <el-select v-model="select_cate" placeholder="品牌篩選" class="handle-select mr10">
-                    <el-option key="1" label="supreme" value="supreme"></el-option>
-                    <el-option key="2" label="fearless" value="fearless"></el-option>
+                <el-select v-model="select_cate" placeholder="倉庫選擇" class="handle-select mr10">
+                    <el-option key="1" label="全部倉庫" value="all"></el-option>
+                    <el-option key="2" label="美國" value="美國"></el-option>
+                    <el-option key="3" label="台灣" value="台灣"></el-option>
                 </el-select>
                 <el-input v-model="select_word" placeholder="關鍵字查詢" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="search" @click="search">查詢</el-button>
@@ -123,6 +124,7 @@
         data() {
             return {
                 url: './static/vuetable.json',
+                storageList: [],
                 tableData: [],
                 cur_page: 1,
                 multipleSelection: [],
@@ -152,6 +154,7 @@
                 sortKey: '',
                 sortOrder: '',
                 isSort: false,
+                pageSize: 10,
 
             }
         },
@@ -160,7 +163,8 @@
         },
         computed: {
             data() {
-                return this.tableData.filter((d) => {
+
+                this.tableData = this.storageList.filter((d) => {
                     let is_del = false;
                     for (let i = 0; i < this.del_list.length; i++) {
                         if (d.pName === this.del_list[i].pName && d.pLocation === this.del_list[i].pLocation && d.pPrice === this.del_list[i].pPrice && d.pQuantity === this.del_list[i].pQuantity && d.pSize === this.del_list[i].pSize && d.pColor === this.del_list[i].pColor && d.pImg === this.del_list[i].pImg && d.pNote === this.del_list[i].pNote && d.pCost === this.del_list[i].pCost) {
@@ -169,14 +173,14 @@
                         }
                     }
                     if (!is_del) {
-                        // if (d.brand.indexOf(this.select_cate) > -1 &&
-                        //     (d.name.indexOf(this.select_word) > -1 ||
-                        //         d.brand.indexOf(this.select_word) > -1)
-                        // ) {
-                        return d;
-                        // }
+                        if(this.select_cate == "all" || this.select_cate == null) return d;
+                        else if(d.pLocation.indexOf(this.select_cate) > -1 && (d.pName.indexOf(this.select_word) > -1)){
+                            return d;
+                        }
                     }
-                })
+                });
+                this.tableLength = this.tableData.length;
+                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
             }
         },
         methods: {
@@ -192,14 +196,11 @@
                     this.url = '/server/getStorageList';
                 };
                 this.$axios.post(this.url, {
-                    page: this.cur_page,
                     isSort: this.isSort,
                     sortKey: this.sortKey,
                     sortOrder: this.sortOrder
                 }).then((res) => {
-                    this.tableData = res.data.list;
-                    this.tableLength=res.data.totalDataNum;
-                    console.log(this.tableData);
+                    this.storageList = res.data.list;
                 });
             },
             search() {
@@ -269,23 +270,23 @@
                 this.getData();
             },
 
-            handleAvatarSuccess(res, file) {
-                this.imageUrl = URL.createObjectURL(file.raw);
-            },
+            // handleAvatarSuccess(res, file) {
+            //     this.imageUrl = URL.createObjectURL(file.raw);
+            // },
 
             // upload product Img
-            beforeAvatarUpload(file) {
-                const isJPG = file.type === 'image/jpeg';
-                const isLt2M = file.size / 1024 / 1024 < 2;
+            // beforeAvatarUpload(file) {
+            //     const isJPG = file.type === 'image/jpeg';
+            //     const isLt2M = file.size / 1024 / 1024 < 2;
 
-                if (!isJPG) {
-                  this.$message.error('上传头像图片只能是 JPG 格式!');
-                }
-                if (!isLt2M) {
-                  this.$message.error('上传头像图片大小不能超过 2MB!');
-                }
-                return isJPG && isLt2M;
-            }
+            //     if (!isJPG) {
+            //       this.$message.error('上传头像图片只能是 JPG 格式!');
+            //     }
+            //     if (!isLt2M) {
+            //       this.$message.error('上传头像图片大小不能超过 2MB!');
+            //     }
+            //     return isJPG && isLt2M;
+            // }
         }
     }
 

@@ -6,7 +6,6 @@ const fn = () => {}
 var debugMode = 1; // 0 don't show log , 1 show log
 
 router.post('/getStorageList', (req, res) => {
-	var pageSize = 10;
 
 	new Promise(function(resolve,reject){
 		var sql = "SELECT * FROM product";
@@ -42,8 +41,7 @@ router.post('/getStorageList', (req, res) => {
 
 		res.send(
 			{ 
-				"list":storageList.slice(pageSize*(req.body.page-1), (pageSize*req.body.page)-1),
-				"totalDataNum":storageList.length
+				"list":storageList
 			}
 		);
 	});
