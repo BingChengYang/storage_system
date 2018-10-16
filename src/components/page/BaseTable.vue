@@ -7,16 +7,20 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" icon="delete" class="handle-del mr10" @click="delAll">刪除多筆資料</el-button>
-                <el-select v-model="select_cate" placeholder="倉庫選擇" class="handle-select mr10">
-                    <el-option key="1" label="全部倉庫" value="all"></el-option>
+                <el-button type="primary" class="handle-del mr10" @click="delAll">多筆商品轉倉</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="newProduct">新增商品</el-button>
+                <el-select v-model="selectLocation" placeholder="倉庫選擇" class="handle-select mr10">
+                    <el-option key="1" label="全部倉庫" value=""></el-option>
                     <el-option key="2" label="美國" value="美國"></el-option>
                     <el-option key="3" label="台灣" value="台灣"></el-option>
                 </el-select>
-                <el-input v-model="select_word" placeholder="關鍵字查詢" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="search" @click="search">查詢</el-button>
+                <el-select v-model="selectSeason" placeholder="季節選擇" class="handle-select mr10">
+                    <el-option key="1" label="全年" value=""></el-option>
+                    <el-option key="2" label="春夏" value="春夏"></el-option>
+                    <el-option key="3" label="秋冬" value="秋冬"></el-option>
+                </el-select>
             </div>
-            <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='tableChange'>
+            <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='sortChange'>
                 <el-table-column type="selection" min-width="55"></el-table-column>
               <!--   <el-table-column prop="date" label="日期" sortable width="150">
                 </el-table-column>
@@ -61,19 +65,28 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+        <el-dialog title="編輯" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
                 <el-form-item label="品名">
                     <el-input v-model="form.pName"></el-input>
                 </el-form-item>
                 <el-form-item label="所在地">
-                    <el-input v-model="form.pLocation"></el-input>
+                    <el-select v-model="form.pLocation">
+                            <el-option key="1" label="美國" value="美國"></el-option>
+                            <el-option key="2" label="台灣" value="台灣"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="季度">
-                    <el-input v-model="form.pSeason"></el-input>
+                    <el-select v-model="form.pSeason">
+                            <el-option key="1" label="春夏" value="春夏"></el-option>
+                            <el-option key="2" label="秋冬" value="秋冬"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="種類">
-                    <el-input v-model="form.pType"></el-input>
+                    <el-select v-model="form.pType">
+                            <el-option key="1" label="長袖" value="長袖"></el-option>
+                            <el-option key="2" label="短袖" value="短袖"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
                     <el-input v-model="form.pCost"></el-input>
@@ -85,10 +98,22 @@
                     <el-input v-model="form.pQuantity"></el-input>
                 </el-form-item>
                 <el-form-item label="尺寸">
-                    <el-input v-model="form.pSize"></el-input>
+                    <el-select v-model="form.pSize">
+                            <el-option key="1" label="XL" value="XL"></el-option>
+                            <el-option key="2" label="L" value="L"></el-option>
+                            <el-option key="3" label="M" value="M"></el-option>
+                            <el-option key="4" label="S" value="S"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="顏色">
-                    <el-input v-model="form.pColor"></el-input>
+                    <el-select v-model="form.pColor">
+                            <el-option key="1" label="黑" value="黑"></el-option>
+                            <el-option key="2" label="白" value="白"></el-option>
+                            <el-option key="3" label="藍" value="藍"></el-option>
+                            <el-option key="4" label="紅" value="紅"></el-option>
+                            <el-option key="5" label="黃" value="黃"></el-option>
+                            <el-option key="6" label="綠" value="綠"></el-option>
+                    </el-select>
                 </el-form-item>
                 <!-- <el-form-upload
                     class="avatar-uploader"
@@ -104,6 +129,73 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveEdit">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="建立新商品" :visible.sync="newVisible" width="30%">
+            <el-form ref="form" :model="form" label-width="50px">
+                <el-form-item label="品名">
+                    <el-input v-model="form.pName"></el-input>
+                </el-form-item>
+                <el-form-item label="所在地">
+                    <el-select v-model="form.pLocation">
+                            <el-option key="1" label="美國" value="美國"></el-option>
+                            <el-option key="2" label="台灣" value="台灣"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="季度">
+                    <el-select v-model="form.pSeason">
+                            <el-option key="1" label="春夏" value="春夏"></el-option>
+                            <el-option key="2" label="秋冬" value="秋冬"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="種類">
+                    <el-select v-model="form.pType">
+                            <el-option key="1" label="長袖" value="長袖"></el-option>
+                            <el-option key="2" label="短袖" value="短袖"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="成本">
+                    <el-input v-model="form.pCost"></el-input>
+                </el-form-item>
+                <el-form-item label="售價">
+                    <el-input v-model="form.pPrice"></el-input>
+                </el-form-item>
+                <el-form-item label="數量">
+                    <el-input v-model="form.pQuantity"></el-input>
+                </el-form-item>
+                <el-form-item label="尺寸">
+                    <el-select v-model="form.pSize">
+                            <el-option key="1" label="XL" value="XL"></el-option>
+                            <el-option key="2" label="L" value="L"></el-option>
+                            <el-option key="3" label="M" value="M"></el-option>
+                            <el-option key="4" label="S" value="S"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="顏色">
+                    <el-select v-model="form.pColor">
+                            <el-option key="1" label="黑" value="黑"></el-option>
+                            <el-option key="2" label="白" value="白"></el-option>
+                            <el-option key="3" label="藍" value="藍"></el-option>
+                            <el-option key="4" label="紅" value="紅"></el-option>
+                            <el-option key="5" label="黃" value="黃"></el-option>
+                            <el-option key="6" label="綠" value="綠"></el-option>
+                    </el-select>
+                </el-form-item>
+                <!-- <el-form-upload
+                    class="avatar-uploader"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                    :before-upload="beforeAvatarUpload">
+                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-form-upload> -->
+
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="newVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveNewProduct">確定</el-button>
             </span>
         </el-dialog>
 
@@ -128,13 +220,14 @@
                 tableData: [],
                 cur_page: 1,
                 multipleSelection: [],
-                select_cate: '',
-                select_word: '',
+                selectLocation: '',
+                selectSeason: '',
                 del_list: [],
-                is_search: false,
                 editVisible: false,
                 delVisible: false,
+                newVisible: false,
                 form: {
+                    pid: '',
                     pName: '',
                     pLocation: '',
                     pSeason: '',
@@ -165,17 +258,17 @@
             data() {
 
                 this.tableData = this.storageList.filter((d) => {
-                    let is_del = false;
-                    for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.pName === this.del_list[i].pName && d.pLocation === this.del_list[i].pLocation && d.pPrice === this.del_list[i].pPrice && d.pQuantity === this.del_list[i].pQuantity && d.pSize === this.del_list[i].pSize && d.pColor === this.del_list[i].pColor && d.pImg === this.del_list[i].pImg && d.pNote === this.del_list[i].pNote && d.pCost === this.del_list[i].pCost) {
-                            is_del = true;
-                            break;
+                    if(this.selectLocation != ''){
+                        if(this.selectSeason == ''){
+                            if(this.selectLocation == d.pLocation) return d;
+                        }else{
+                            if((this.selectLocation == d.pLocation) && (this.selectSeason==d.pSeason)) return d;
                         }
-                    }
-                    if (!is_del) {
-                        if(this.select_cate == "all" || this.select_cate == null) return d;
-                        else if(d.pLocation.indexOf(this.select_cate) > -1 && (d.pName.indexOf(this.select_word) > -1)){
+                    }else{
+                        if(this.selectSeason == ''){
                             return d;
+                        }else{
+                            if(this.selectSeason==d.pSeason) return d;
                         }
                     }
                 });
@@ -187,7 +280,7 @@
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
-                this.getData();
+               
             },
             // 获取 easy-mock 的模拟数据
             getData() {
@@ -203,8 +296,29 @@
                     this.storageList = res.data.list;
                 });
             },
-            search() {
-                this.is_search = true;
+            // update value to DB
+            editData(item){
+                //console.log(item);
+                if (process.env.NODE_ENV === 'development') {
+                    this.url = '/server/updateStorageList';
+                };
+                this.$axios.post(this.url, item).then((res) => {
+                });
+            },
+            delData(pid){
+                if (process.env.NODE_ENV === 'development') {
+                    this.url = '/server/delStorageList';
+                };
+                this.$axios.post(this.url, {
+                   pid:pid
+                }).then((res) => {});
+            },
+            insertData(item){
+                if (process.env.NODE_ENV === 'development') {
+                    this.url = '/server/insertStorageList';
+                };
+                this.$axios.post(item).then((res) => {
+                });
             },
             formatter(row, column) {
                 return row.address;
@@ -213,9 +327,11 @@
                 return row.tag === value;
             },
             handleEdit(index, row) {
-                this.idx = index;
-                const item = this.tableData[index];
+                this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
+                console.log(row.pid);
+                const item = this.storageList[this.idx];
                 this.form = {
+                    pid: item.pid,
                     pName: item.pName,
                     pLocation: item.pLocation,
                     pSeason: item.pSeason,
@@ -230,11 +346,30 @@
                 }
                 this.editVisible = true;
             },
+            newProduct() {
+                
+                this.form = {
+                    pid: '',
+                    pName: '',
+                    pLocation: '',
+                    pSeason: '',
+                    pType: '',
+                    pCost: '',
+                    pPrice: '',
+                    pQuantity: '',
+                    pSize: '',
+                    pColor: '',
+                    pImg: '',
+                    pNote: ''
+                }
+                this.newVisible = true;
+            },
             handleDelete(index, row) {
-                this.idx = index;
+                this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
                 this.delVisible = true;
             },
-            delAll() {// here is a bug , delete_list need to be object list;
+            delAll() {
+                console.log(this.multipleSelection);
                 const length = this.multipleSelection.length;
                 let str = '';
                 this.del_list = this.del_list.concat(this.multipleSelection);
@@ -249,24 +384,34 @@
             },
             // 保存编辑
             saveEdit() {
-                this.$set(this.tableData, this.idx, this.form);
+                this.editData(this.form);
+                this.$set(this.storageList, this.idx, this.form);
+                //console.log(this.storageList[this.idx]);
                 this.editVisible = false;
-                this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                this.$message.success(`修改成功`);
+            },
+            saveNewProduct() {
+                this.insertData(this.form);
+                this.storageList.push(this.form);
+                //console.log(this.storageList[this.idx]);
+                this.newVisible = false;
+                this.$message.success(`新增成功`);
             },
             // 确定删除
             deleteRow(){
-                this.tableData.splice(this.idx, 1);
+                this.delData(this.storageList[this.idx].pid);
+                this.storageList.splice(this.idx, 1);
                 this.$message.success('刪除成功');
                 this.delVisible = false;
             },
 
-            tableChange:function(column,prop,order){
+            sortChange:function(column,prop,order){
                 this.isSort = true;
                 this.sortOrder = column.order;
                 this.sortKey = column.prop;
-                console.log(column)
-                console.log(column.prop)
-                console.log(column.order)
+                console.log(column);
+                console.log(column.prop);
+                console.log(column.order);
                 this.getData();
             },
 
