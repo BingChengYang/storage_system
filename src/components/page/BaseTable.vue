@@ -7,7 +7,7 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" class="handle-del mr10" @click="delAll">多筆商品轉倉</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="newPending">多筆商品轉倉</el-button>
                 <el-button type="primary" class="handle-del mr10" @click="newProduct">新增商品</el-button>
                 <el-select v-model="selectLocation" placeholder="倉庫選擇" class="handle-select mr10">
                     <el-option key="1" label="全部倉庫" value=""></el-option>
@@ -22,12 +22,6 @@
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='sortChange'>
                 <el-table-column type="selection" min-width="55"></el-table-column>
-              <!--   <el-table-column prop="date" label="日期" sortable width="150">
-                </el-table-column>
-                <el-table-column prop="name" label="姓名" width="120">
-                </el-table-column>
-                <el-table-column prop="address" label="地址" :formatter="formatter">
-                </el-table-column> -->
                 <el-table-column prop="pName" label="品名" min-width="50">
                 </el-table-column>
                 <el-table-column prop="pLocation" label="所在地" min-width="50">
@@ -53,8 +47,8 @@
 
                 <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
-                        <el-button size="small" @click="handleEdit(scope.$index, scope.row)">編輯</el-button>
-                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">刪除</el-button>
+                        <el-button size="small" @click="handleProductEdit(scope.$index, scope.row)">編輯</el-button>
+                        <el-button size="small" type="danger" @click="handleProductDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -64,8 +58,7 @@
             </div>
         </div>
 
-        <!-- 编辑弹出框 -->
-        <el-dialog title="編輯" :visible.sync="editVisible" width="30%">
+        <el-dialog title="編輯" :visible.sync="editProductVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
                 <el-form-item label="品名">
                     <el-input v-model="form.pName"></el-input>
@@ -115,24 +108,69 @@
                             <el-option key="6" label="綠" value="綠"></el-option>
                     </el-select>
                 </el-form-item>
-                <!-- <el-form-upload
-                    class="avatar-uploader"
-                    action="https://jsonplaceholder.typicode.com/posts/"
-                    :show-file-list="false"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload">
-                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-form-upload> -->
 
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="editVisible = false">取消</el-button>
-                <el-button type="primary" @click="saveEdit">確定</el-button>
+                <el-button @click="editProductVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveProductEdit">確定</el-button>
             </span>
         </el-dialog>
 
-        <el-dialog title="建立新商品" :visible.sync="newVisible" width="30%">
+         <el-dialog title="編輯" :visible.sync="editPendingVisible" width="30%">
+            <el-form ref="form" :model="pendingItemForm" label-width="50px">
+                <el-form-item label="品名">
+                    <el-input v-model="pendingItemForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="出貨數量">
+                    <el-input v-model="pendingItemForm.shipmentCnt"></el-input>
+                </el-form-item>
+                <el-form-item label="尺寸">
+                    <el-select v-model="pendingItemForm.size">
+                            <el-option key="1" label="XL" value="XL"></el-option>
+                            <el-option key="2" label="L" value="L"></el-option>
+                            <el-option key="3" label="M" value="M"></el-option>
+                            <el-option key="4" label="S" value="S"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="顏色">
+                    <el-select v-model="pendingItemForm.color">
+                            <el-option key="1" label="黑" value="黑"></el-option>
+                            <el-option key="2" label="白" value="白"></el-option>
+                            <el-option key="3" label="藍" value="藍"></el-option>
+                            <el-option key="4" label="紅" value="紅"></el-option>
+                            <el-option key="5" label="黃" value="黃"></el-option>
+                            <el-option key="6" label="綠" value="綠"></el-option>
+                    </el-select>
+                </el-form-item>
+
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="savePendingEdit">確定</el-button>
+            </span>
+        </el-dialog>
+
+         <el-dialog title="編輯" :visible.sync="editDeclareVisible" width="30%">
+            <el-form ref="form" :model="declareItemForm" label-width="50px">
+                <el-form-item label="品名">
+                    <el-input v-model="declareItemForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="數量">
+                    <el-input v-model="declareItemForm.quantity"></el-input>
+                </el-form-item>
+                <el-form-item label="單價">
+                    <el-input v-model="declareItemForm.price"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editDeclareVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveDeclareEdit">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- Build form for new product -->
+        <el-dialog title="建立新商品" :visible.sync="newProductVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
                 <el-form-item label="品名">
                     <el-input v-model="form.pName"></el-input>
@@ -182,29 +220,123 @@
                             <el-option key="6" label="綠" value="綠"></el-option>
                     </el-select>
                 </el-form-item>
-                <!-- <el-form-upload
-                    class="avatar-uploader"
-                    action="https://jsonplaceholder.typicode.com/posts/"
-                    :show-file-list="false"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload">
-                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-form-upload> -->
-
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="newVisible = false">取消</el-button>
+                <el-button @click="newProductVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveNewProduct">確定</el-button>
             </span>
         </el-dialog>
 
+        <!-- Build pending list form -->
+        <el-dialog title="建立新轉運單" :visible.sync="newPendingVisible" width="30%">
+            <h3> {{pendingForm.origin}} -> {{pendingForm.destination}} </h3>
+            <el-form ref="form" :model="form" label-width="50px">
+                <el-form-item label="tracking">
+                    <el-input v-model="pendingForm.trackingNo"></el-input>
+                </el-form-item>
+                <el-form-item label="稅金">
+                    <el-input v-model="pendingForm.tax"></el-input>
+                </el-form-item>
+                <el-form-item label="運費">
+                    <el-input v-model="pendingForm.freight"></el-input>
+                </el-form-item>
+                <el-form-item label="日期">
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="選擇日期" v-model="pendingForm.date" style="width: 100%;"></el-date-picker>
+                    </el-col>
+                </el-form-item>
+            </el-form>
+            <el-table :data="pendingForm.productList" border style="width: 100%" ref="multipleTable">
+                <el-table-column prop="name" label="品名" min-width="50">
+                </el-table-column>
+                <el-table-column prop="shipmentCnt" label="出貨數量" min-width="50">
+                </el-table-column>
+                <el-table-column prop="size" label="尺寸" min-width="50">
+                </el-table-column>
+                <el-table-column prop="color" label="顏色" min-width="50">
+                </el-table-column>
+                <el-table-column label="操作" min-width="100">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="handlePendingEdit(scope.$index, scope.row)">編輯</el-button>
+                        <el-button size="small" type="danger" @click="handlePendingDelete(scope.$index, scope.row)">刪除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-button type="primary" class="handle-del mr10" @click="newDeclare">建立申報單</el-button>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="newPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveNewPending">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="建立申報單" :visible.sync="newDeclareVisible" width="30%">
+            <el-button type="primary" class="handle-del mr10" @click="newDeclareItem">新增項目</el-button>
+            <el-table :data="pendingForm.declareForm.itemList" border style="width: 100%" ref="multipleTable">
+                <el-table-column prop="name" label="品名" min-width="50">
+                </el-table-column>
+                <el-table-column prop="quantity" label="數量" min-width="50">
+                </el-table-column>
+                <el-table-column prop="price" label="單價" min-width="50">
+                </el-table-column>
+                <el-table-column prop="total" label="總額" min-width="50">
+                </el-table-column>
+                <el-table-column label="操作" min-width="100">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="handleDeclareEdit(scope.$index, scope.row)">編輯</el-button>
+                        <el-button size="small" type="danger" @click="handleDeclareDelete(scope.$index, scope.row)">刪除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <h3>Total : {{pendingForm.declareForm.amount}}</h3>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="newDeclareVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveNewDeclare">確定</el-button>
+            </span>
+        </el-dialog>
+
+
+        <el-dialog title="新增項目" :visible.sync="newDeclareItemVisible" width="30%">
+            <el-form ref="form" :model="decalreItem" label-width="50px">
+                <el-form-item label="品名">
+                    <el-input v-model="decalreItem.name"></el-input>
+                </el-form-item>
+        
+                <el-form-item label="數量">
+                    <el-input v-model="decalreItem.quantity"></el-input>
+                </el-form-item>
+                <el-form-item label="售價">
+                    <el-input v-model="decalreItem.price"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="newDeclareItemVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveNewDeclareItem">確定</el-button>
+            </span>
+        </el-dialog>
+
+
         <!-- 删除提示框 -->
-        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+        <el-dialog title="提示" :visible.sync="delProductVisible" width="300px" center>
             <div class="del-dialog-cnt">刪除不可恢復,確定是否刪除</div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="delVisible = false">取消</el-button>
-                <el-button type="primary" @click="deleteRow">確定</el-button>
+                <el-button @click="delProductVisible = false">取消</el-button>
+                <el-button type="primary" @click="deleteProductRow">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="提示" :visible.sync="delPendingVisible" width="300px" center>
+            <div class="del-dialog-cnt">刪除不可恢復,確定是否刪除</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="deletePendingRow">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="提示" :visible.sync="delDeclareVisible" width="300px" center>
+            <div class="del-dialog-cnt">刪除不可恢復,確定是否刪除</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delDeclareVisible = false">取消</el-button>
+                <el-button type="primary" @click="deleteDeclareRow">確定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -215,7 +347,8 @@
         name: 'basetable',
         data() {
             return {
-                url: './static/vuetable.json',
+                debugMode: false,
+                url: '/server/getStorageList',
                 storageList: [],
                 tableData: [],
                 cur_page: 1,
@@ -223,9 +356,18 @@
                 selectLocation: '',
                 selectSeason: '',
                 del_list: [],
-                editVisible: false,
-                delVisible: false,
-                newVisible: false,
+
+                editProductVisible: false,
+                delProductVisible: false,
+                editPendingVisible: false,
+                delPendingVisible: false,
+                editDeclareVisible: false,
+                delDeclareVisible: false,
+                newProductVisible: false,
+                newPendingVisible: false,
+                newDeclareVisible: false,
+                newDeclareItemVisible: false,
+
                 form: {
                     pid: '',
                     pName: '',
@@ -249,6 +391,39 @@
                 isSort: false,
                 pageSize: 10,
 
+                pendingForm: {
+                    origin: '',
+                    destination: '',
+                    trackingNo: '',
+                    tax: '',
+                    freight: '',
+                    date: '',
+                    productList:[],
+                    declareForm:{
+                        itemList: [],
+                        amount: 0
+                    }
+                },
+
+                pendingItemForm: {
+                    pid: '',
+                    name: '',
+                    shipmentCnt:'',
+                    color: '',
+                    size: ''
+                },
+
+                decalreItem:{
+                    name:'',
+                    quantity:'',
+                    price:''
+                },
+
+                declareItemForm:{
+                    name:'',
+                    quantity:'',
+                    price:''
+                }
             }
         },
         created() {
@@ -280,14 +455,9 @@
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
-               
             },
-            // 获取 easy-mock 的模拟数据
-            getData() {
-                // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
-                if (process.env.NODE_ENV === 'development') {
-                    this.url = '/server/getStorageList';
-                };
+            getData() {    
+                this.url = '/server/getStorageList';
                 this.$axios.post(this.url, {
                     isSort: this.isSort,
                     sortKey: this.sortKey,
@@ -298,35 +468,39 @@
             },
             // update value to DB
             editData(item){
-                //console.log(item);
-                if (process.env.NODE_ENV === 'development') {
-                    this.url = '/server/updateStorageList';
-                };
+                if(this.debugMode) console.log(item.pid);
+                this.url = '/server/updateStorageList';
                 this.$axios.post(this.url, item).then((res) => {
                 });
             },
             delData(pid){
-                if (process.env.NODE_ENV === 'development') {
-                    this.url = '/server/delStorageList';
-                };
+                this.url = '/server/delStorageList';
                 this.$axios.post(this.url, {
                    pid:pid
                 }).then((res) => {});
             },
             insertData(item){
-                if (process.env.NODE_ENV === 'development') {
-                    this.url = '/server/insertStorageList';
-                };
-                this.$axios.post(item).then((res) => {
-                });
+                this.url = '/server/insertStorageList';
+                if(this.debugMode) console.log(item);
+                this.$axios.post(this.url,item).then((res) => {});
+                
             },
+
             formatter(row, column) {
                 return row.address;
             },
             filterTag(value, row) {
                 return row.tag === value;
             },
-            handleEdit(index, row) {
+
+            calAmount(){
+                this.pendingForm.declareForm.amount = 0;
+                for(var i=0; i<this.pendingForm.declareForm.itemList.length; i++){
+                    this.pendingForm.declareForm.amount += this.pendingForm.declareForm.itemList[i].total;
+                }    
+            },
+
+            handleProductEdit(index, row) {
                 this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
                 console.log(row.pid);
                 const item = this.storageList[this.idx];
@@ -344,7 +518,31 @@
                     pImg: item.pImg,
                     pNote: item.pNote
                 }
-                this.editVisible = true;
+                this.editProductVisible = true;
+            },
+
+            handlePendingEdit(index, row) {
+                this.idx = this.pendingForm.productList.findIndex(x=>x.pid==row.pid);
+                const item = this.pendingForm.productList[this.idx];
+                this.pendingItemForm = {
+                    pid: item.pid,
+                    name: item.name,
+                    color: item.color,
+                    size: item.size,
+                    shipmentCnt: item.shipmentCnt
+                }
+                this.editPendingVisible = true;
+            },
+
+            handleDeclareEdit(index, row) {
+                this.idx = index;
+                const item = this.pendingForm.declareForm.itemList[this.idx];
+                this.declareItemForm = {
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                }
+                this.editDeclareVisible = true;
             },
             newProduct() {
                 
@@ -362,76 +560,157 @@
                     pImg: '',
                     pNote: ''
                 }
-                this.newVisible = true;
+                this.newProductVisible = true;
             },
-            handleDelete(index, row) {
-                this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
-                this.delVisible = true;
+
+            newDeclare() {
+                
+                this.newDeclareVisible = true;
             },
-            delAll() {
-                console.log(this.multipleSelection);
-                const length = this.multipleSelection.length;
-                let str = '';
-                this.del_list = this.del_list.concat(this.multipleSelection);
-                for (let i = 0; i < length; i++) {
-                    str += this.multipleSelection[i].name + ' ';
+
+            newDeclareItem() {
+                this.decalreItem = {
+                    name: '',
+                    quantity: '',
+                    price: ''
                 }
-                this.$message.error('刪除了' + str);
-                this.multipleSelection = [];
+                this.newDeclareItemVisible = true;
+            },
+
+            handleProductDelete(index, row) {
+                this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
+                this.delProductVisible = true;
+            },
+            handlePendingDelete(index, row) {
+                this.idx = this.pendingForm.productList.findIndex(x=>x.pid==row.pid);
+                this.delPendingVisible = true;
+            },
+            handleDeclareDelete(index, row) {
+                this.idx = index;
+                this.delDeclareVisible = true;
+            },
+            newPending() {
+                const length = this.multipleSelection.length;
+                // 先做單頁
+                if(length>0){
+                    this.newPendingVisible = true;
+                    this.pendingForm.origin = this.multipleSelection[0].pLocation;
+                    if(this.pendingForm.origin == "美國"){
+                        this.pendingForm.destination = "台灣";
+                    }else if(this.pendingForm.origin == "台灣"){
+                        this.pendingForm.destination = "美國"
+                    }
+                    this.pendingForm.productList = [];
+                    for(var i=0; i<length; i++){
+                        this.pendingForm.productList.push(
+                            {
+                                pid: this.multipleSelection[i].pid,
+                                name: this.multipleSelection[i].pName,
+                                shipmentCnt: 0,
+                                size: this.multipleSelection[i].pSize,
+                                color: this.multipleSelection[i].pColor
+                            });
+                    }
+                    if(this.debugMode) console.log(this.pendingForm.productList);
+                }
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
             // 保存编辑
-            saveEdit() {
+            saveProductEdit() {
                 this.editData(this.form);
                 this.$set(this.storageList, this.idx, this.form);
-                //console.log(this.storageList[this.idx]);
-                this.editVisible = false;
+                if(this.debugMode) console.log(this.storageList[this.idx]);
+                this.editProductVisible = false;
                 this.$message.success(`修改成功`);
             },
+
+            savePendingEdit() {
+                this.$set(this.pendingForm.productList, this.idx, this.pendingItemForm);
+                this.editPendingVisible = false;
+                this.$message.success(`修改成功`);
+            },
+
+            saveDeclareEdit() {
+        
+                this.$set(this.pendingForm.declareForm.itemList, this.idx, {
+                    name: this.declareItemForm.name,
+                    quantity: this.declareItemForm.quantity,
+                    price: this.declareItemForm.price,
+                    total: this.declareItemForm.quantity*this.declareItemForm.price
+                });
+                this.calAmount();
+                this.editDeclareVisible = false;
+                this.$message.success(`修改成功`);
+            },
+
             saveNewProduct() {
                 this.insertData(this.form);
-                this.storageList.push(this.form);
-                //console.log(this.storageList[this.idx]);
-                this.newVisible = false;
+                //this.storageList.push(this.form);
+                this.newProductVisible = false;
+                this.$message.success(`新增成功`);
+                this.getData();
+
+            },
+
+
+            saveNewPending() {
+                //this.insertData(this.form);
+                //this.storageList.push(this.form);
+                this.newPendingVisible = false;
+                this.$message.success(`新增成功`);
+                //this.getData();
+            },
+
+            saveNewDeclare() {
+                this.newDeclareVisible = false;
                 this.$message.success(`新增成功`);
             },
-            // 确定删除
-            deleteRow(){
+
+            saveNewDeclareItem() {
+                this.pendingForm.declareForm.itemList.push({
+                    name: this.decalreItem.name,
+                    quantity: this.decalreItem.quantity,
+                    price: this.decalreItem.price,
+                    total: this.decalreItem.quantity*this.decalreItem.price
+                });
+                this.calAmount();   
+                this.newDeclareItemVisible = false;
+                this.$message.success(`新增成功`);
+            },
+
+            deleteProductRow(){
                 this.delData(this.storageList[this.idx].pid);
                 this.storageList.splice(this.idx, 1);
                 this.$message.success('刪除成功');
-                this.delVisible = false;
+                this.delProductVisible = false;
+            },
+
+            deletePendingRow(){
+                this.pendingForm.productList.splice(this.idx, 1);
+                this.$message.success('刪除成功');
+                this.delPendingVisible = false;
+            },
+
+            deleteDeclareRow(){
+                this.pendingForm.declareForm.itemList.splice(this.idx, 1);
+                this.calAmount();
+                this.$message.success('刪除成功');
+                this.delDeclareVisible = false;
             },
 
             sortChange:function(column,prop,order){
                 this.isSort = true;
                 this.sortOrder = column.order;
                 this.sortKey = column.prop;
-                console.log(column);
-                console.log(column.prop);
-                console.log(column.order);
+                if(this.debugMode){
+                    console.log(column);
+                    console.log(column.prop);
+                    console.log(column.order);
+                }
                 this.getData();
-            },
-
-            // handleAvatarSuccess(res, file) {
-            //     this.imageUrl = URL.createObjectURL(file.raw);
-            // },
-
-            // upload product Img
-            // beforeAvatarUpload(file) {
-            //     const isJPG = file.type === 'image/jpeg';
-            //     const isLt2M = file.size / 1024 / 1024 < 2;
-
-            //     if (!isJPG) {
-            //       this.$message.error('上传头像图片只能是 JPG 格式!');
-            //     }
-            //     if (!isLt2M) {
-            //       this.$message.error('上传头像图片大小不能超过 2MB!');
-            //     }
-            //     return isJPG && isLt2M;
-            // }
+            }
         }
     }
 

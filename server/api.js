@@ -5,6 +5,17 @@ const fn = () => {}
 
 var debugMode = 1; // 0 don't show log , 1 show log
 
+router.post('/insertStorageList', (req, res) => {
+	if(debugMode) console.log(req.body);
+	
+	var sql = "INSERT INTO product (pName,pLocation,pSeason,pType,pCost,pPrice,pQuantity,pSize,pColor,pImg,pNote) VALUES (\'"+req.body.pName+"\',\'"+req.body.pLocation+"\',\'"+req.body.pSeason+"\',\'"+req.body.pType+"\',\'"+req.body.pCost+"\',\'"+req.body.pPrice+"\',\'"+req.body.pQuantity+"\',\'"+req.body.pSize+"\',\'"+req.body.pColor+"\',\'"+req.body.pImg+"\',\'"+req.body.pNote+"\')";
+	if(debugMode) console.log(sql);
+	db.query(sql, function (err, result, fields) {
+		if (err) throw err;
+		if(debugMode) console.log(result);
+	});
+});
+
 router.post('/delStorageList', (req, res) => {
 	if(debugMode) console.log(req.body.pid);
 	
