@@ -7,7 +7,7 @@ export default new Router({
     routes: [
         {
             path: '/',
-            redirect: '/table'
+            redirect: '/productTable'
         },
         {
             path: '/',
@@ -20,9 +20,14 @@ export default new Router({
                 //     meta: { title: '系统首页' }
                 // },
                 {
-                    path: '/table',
-                    component: resolve => require(['../components/page/BaseTable.vue'], resolve),
+                    path: '/productTable',
+                    component: resolve => require(['../components/page/productTable.vue'], resolve),
                     meta: { title: '庫存查詢' }
+                },
+                {
+                    path: '/pendingTable',
+                    component: resolve => require(['../components/page/pendingTable.vue'], resolve),
+                    meta: { title: '轉倉單查詢' }
                 },
                 // {
                 //     path: '/tabs',

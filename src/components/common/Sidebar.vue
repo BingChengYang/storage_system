@@ -45,8 +45,13 @@
                     // },
                     {
                         icon: 'el-icon-tickets',
-                        index: 'table',
+                        index: 'productTable',
                         title: '庫存查詢'
+                    },
+                    {
+                        icon: 'el-icon-tickets',
+                        index: 'pendingTable',
+                        title: '轉倉單查詢'
                     },
                     {
                         icon: 'el-icon-tickets',

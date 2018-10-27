@@ -5,6 +5,18 @@ const fn = () => {}
 
 var debugMode = 1; // 0 don't show log , 1 show log
 
+router.post('/addPendingForm', (req, res) => {
+	if(debugMode) console.log(req.body);
+	var sql = "INSERT INTO pendinglist (pendingForm) VALUES (\'"+JSON.stringify(req.body)+"\')";
+	console.log(sql);
+
+	db.query(sql, function (err, result, fields) {
+		if (err) throw err;
+		if(debugMode) console.log(result);
+	});
+	
+});
+
 router.post('/insertStorageList', (req, res) => {
 	if(debugMode) console.log(req.body);
 	
@@ -22,7 +34,7 @@ router.post('/delStorageList', (req, res) => {
 	var sql = "DELETE FROM product WHERE pid="+req.body.pid;
 	console.log(sql)
 	db.query(sql, function (err, result, fields) {
-		if (err) throw err;
+		// if (err) throw err;
 		if(debugMode == 1) console.log(result);
 	});
 });
@@ -79,6 +91,25 @@ router.post('/getStorageList', (req, res) => {
 		);
 	});
 	
+});
+
+router.post('/getPendingList', (req, res) => {
+
+	var sql = "SELECT * FROM pendinglist";
+	new Promise(function(resolve){
+		db.query(sql, function (err, result, fields) {
+			var response = [];
+			if (err) throw err;
+			if(debugMode == 1) console.log(result);
+			for(var i=0; i<result.length; i++){ 
+	            response[i] = JSON.parse(result[i].pendingForm);
+	            response[i].pendingID = result[i].pendingID;
+	        }
+	        resolve(response);
+		});
+	}).then(function(response){
+		res.send(response);
+	});
 });
 
 module.exports = router

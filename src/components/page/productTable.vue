@@ -271,7 +271,7 @@
 
         <el-dialog title="建立申報單" :visible.sync="newDeclareVisible" width="30%">
             <el-button type="primary" class="handle-del mr10" @click="newDeclareItem">新增項目</el-button>
-            <el-table :data="pendingForm.declareForm.itemList" border style="width: 100%" ref="multipleTable">
+            <el-table :data="declareForm.itemList" border style="width: 100%" ref="multipleTable">
                 <el-table-column prop="name" label="品名" min-width="50">
                 </el-table-column>
                 <el-table-column prop="quantity" label="數量" min-width="50">
@@ -287,7 +287,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <h3>Total : {{pendingForm.declareForm.amount}}</h3>
+            <h3>Total : {{declareForm.amount}}</h3>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="newDeclareVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveNewDeclare">確定</el-button>
@@ -419,6 +419,11 @@
                     price:''
                 },
 
+                declareForm:{
+                    itemList: [],
+                    amount: 0
+                },
+
                 declareItemForm:{
                     name:'',
                     quantity:'',
@@ -486,6 +491,12 @@
                 
             },
 
+            addPendingForm(pendingForm){
+                this.url = '/server/addPendingForm';
+                if(this.debugMode) console.log(pendingForm);
+                this.$axios.post(this.url,pendingForm).then((res) => {});
+            },
+
             formatter(row, column) {
                 return row.address;
             },
@@ -495,8 +506,8 @@
 
             calAmount(){
                 this.pendingForm.declareForm.amount = 0;
-                for(var i=0; i<this.pendingForm.declareForm.itemList.length; i++){
-                    this.pendingForm.declareForm.amount += this.pendingForm.declareForm.itemList[i].total;
+                for(var i=0; i<this.declareForm.itemList.length; i++){
+                    this.declareForm.amount += this.declareForm.itemList[i].total;
                 }    
             },
 
@@ -536,7 +547,7 @@
 
             handleDeclareEdit(index, row) {
                 this.idx = index;
-                const item = this.pendingForm.declareForm.itemList[this.idx];
+                const item = this.declareForm.itemList[this.idx];
                 this.declareItemForm = {
                     name: item.name,
                     quantity: item.quantity,
@@ -564,6 +575,10 @@
             },
 
             newDeclare() {
+                this.declareForm = {
+                    itemList: [],
+                    amount: 0
+                }
                 
                 this.newDeclareVisible = true;
             },
@@ -591,6 +606,19 @@
             },
             newPending() {
                 const length = this.multipleSelection.length;
+                this.pendingForm = {
+                    origin: '',
+                    destination: '',
+                    trackingNo: '',
+                    tax: '',
+                    freight: '',
+                    date: '',
+                    productList:[],
+                    declareForm:{
+                        itemList: [],
+                        amount: 0
+                    }  
+                }
                 // 先做單頁
                 if(length>0){
                     this.newPendingVisible = true;
@@ -634,7 +662,7 @@
 
             saveDeclareEdit() {
         
-                this.$set(this.pendingForm.declareForm.itemList, this.idx, {
+                this.$set(this.declareForm.itemList, this.idx, {
                     name: this.declareItemForm.name,
                     quantity: this.declareItemForm.quantity,
                     price: this.declareItemForm.price,
@@ -658,18 +686,20 @@
             saveNewPending() {
                 //this.insertData(this.form);
                 //this.storageList.push(this.form);
+                this.addPendingForm(this.pendingForm);
                 this.newPendingVisible = false;
                 this.$message.success(`新增成功`);
                 //this.getData();
             },
 
             saveNewDeclare() {
+                this.pendingForm.declareForm = this.declareForm;
                 this.newDeclareVisible = false;
                 this.$message.success(`新增成功`);
             },
 
             saveNewDeclareItem() {
-                this.pendingForm.declareForm.itemList.push({
+                this.declareForm.itemList.push({
                     name: this.decalreItem.name,
                     quantity: this.decalreItem.quantity,
                     price: this.decalreItem.price,
@@ -694,7 +724,7 @@
             },
 
             deleteDeclareRow(){
-                this.pendingForm.declareForm.itemList.splice(this.idx, 1);
+                this.declareForm.itemList.splice(this.idx, 1);
                 this.calAmount();
                 this.$message.success('刪除成功');
                 this.delDeclareVisible = false;
