@@ -19,20 +19,22 @@
                 </el-table-column>
                 <el-table-column prop="destination" label="終點" min-width="50">
                 </el-table-column>
-                <el-table-column label="商品列表" min-width="180">
+                <el-table-column label="商品列表" min-width="70">
                     <template slot-scope="scope">
                         <el-button size="small" @click="showProduct(scope.$index, scope.row)">檢視商品列表</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column label="商品列表" min-width="180">
+                <el-table-column label="商品列表" min-width="70">
                     <template slot-scope="scope">
                         <el-button size="small" @click="showDeclareForm(scope.$index, scope.row)">檢視申報單</el-button>
                     </template>
                 </el-table-column>
 
-
+                <el-table-column prop="status" label="狀態" min-width="50">
+                </el-table-column>
                 <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
+                        <el-button size="small" type="primary" @click="handleArrive(scope.$index, scope.row)">確認抵達</el-button>
                         <el-button size="small" type="danger" @click="handlePendingDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
@@ -87,6 +89,14 @@
                 <el-button type="primary" @click="deletePendingRow">確定</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog title="提示" :visible.sync="confirmPendingVisible" width="300px" center>
+            <div class="del-dialog-cnt">確定物品已抵達</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="confirmPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmPendingRow">確定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -101,7 +111,7 @@
                 tableData: [],
                 cur_page: 1,
         
-
+                curPendingID: -1,
                 idx: -1,
                 tableLength: -1,
 
@@ -112,7 +122,7 @@
 
                 showProductVisible: false,
                 showDeclareVisible: false,
-
+                confirmPendingVisible: false,
                 delPendingVisible: false,
 
                 productList: [],
@@ -121,22 +131,6 @@
                     amount: 0
                 },
 
-
-                pendingForm: {
-                    origin: '',
-                    destination: '',
-                    trackingNo: '',
-                    tax: '',
-                    freight: '',
-                    date: '',
-                    productList:[],
-                    declareForm:{
-                        itemList: [],
-                        amount: 0
-                    }
-                },
-
-             
             }
         },
         created() {
@@ -167,6 +161,24 @@
                 });
             },
 
+            confirmArrive(pendingID){
+                this.url = '/server/confirmArrive';
+                this.$axios.post(this.url, {
+                    pendingID: pendingID,
+                }).then((res) => {
+                    
+                });
+            },
+
+            delPendingForm(pendingID){
+                this.url = '/server/delPendingForm';
+                this.$axios.post(this.url, {
+                    pendingID: pendingID,
+                }).then((res) => {
+                    
+                });
+            },
+
             showProduct(index,row){
 
                 this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
@@ -183,14 +195,30 @@
             },
 
             handlePendingDelete(index, row) {
+                this.curPendingID = row.pendingID;
                 this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
                 this.delPendingVisible = true;
             },
 
             deletePendingRow(){
-                //this.pendingForm.productList.splice(this.idx, 1);
+                this.delPendingForm(this.curPendingID);
+                this.pendingList.splice(this.idx, 1);
                 this.$message.success('刪除成功');
                 this.delPendingVisible = false;
+            },
+
+            handleArrive(index,row){
+                this.curPendingID = row.pendingID;
+                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
+                if(this.pendingList[this.idx].status == "已抵達") this.$message.error('已運送成功');
+                else this.confirmPendingVisible = true;
+            },
+
+            confirmPendingRow(){
+                this.confirmArrive(this.curPendingID);
+                this.pendingList[this.idx].status = "已抵達"; 
+                this.confirmPendingVisible = false;
+                this.$message.success('物品以抵達');
             },
 
             sortChange:function(column,prop,order){

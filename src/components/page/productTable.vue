@@ -118,31 +118,9 @@
 
          <el-dialog title="編輯" :visible.sync="editPendingVisible" width="30%">
             <el-form ref="form" :model="pendingItemForm" label-width="50px">
-                <el-form-item label="品名">
-                    <el-input v-model="pendingItemForm.name"></el-input>
-                </el-form-item>
                 <el-form-item label="出貨數量">
                     <el-input v-model="pendingItemForm.shipmentCnt"></el-input>
                 </el-form-item>
-                <el-form-item label="尺寸">
-                    <el-select v-model="pendingItemForm.size">
-                            <el-option key="1" label="XL" value="XL"></el-option>
-                            <el-option key="2" label="L" value="L"></el-option>
-                            <el-option key="3" label="M" value="M"></el-option>
-                            <el-option key="4" label="S" value="S"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="顏色">
-                    <el-select v-model="pendingItemForm.color">
-                            <el-option key="1" label="黑" value="黑"></el-option>
-                            <el-option key="2" label="白" value="白"></el-option>
-                            <el-option key="3" label="藍" value="藍"></el-option>
-                            <el-option key="4" label="紅" value="紅"></el-option>
-                            <el-option key="5" label="黃" value="黃"></el-option>
-                            <el-option key="6" label="綠" value="綠"></el-option>
-                    </el-select>
-                </el-form-item>
-
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editPendingVisible = false">取消</el-button>
@@ -374,9 +352,9 @@
                     pLocation: '',
                     pSeason: '',
                     pType: '',
-                    pCost: '',
-                    pPrice: '',
-                    pQuantity: '',
+                    pCost: 0,
+                    pPrice: 0,
+                    pQuantity: 0,
                     pSize: '',
                     pColor: '',
                     pImg: '',
@@ -410,7 +388,13 @@
                     name: '',
                     shipmentCnt:'',
                     color: '',
-                    size: ''
+                    size: '',
+                    cost: '',
+                    price: '',
+                    season: '',
+                    type: '',
+                    img: '',
+                    note: ''
                 },
 
                 decalreItem:{
@@ -540,7 +524,13 @@
                     name: item.name,
                     color: item.color,
                     size: item.size,
-                    shipmentCnt: item.shipmentCnt
+                    shipmentCnt: item.shipmentCnt,
+                    cost: item.cost,
+                    price: item.price,
+                    season: item.season,
+                    type: item.type,
+                    img: item.img,
+                    note: item.note
                 }
                 this.editPendingVisible = true;
             },
@@ -563,9 +553,9 @@
                     pLocation: '',
                     pSeason: '',
                     pType: '',
-                    pCost: '',
-                    pPrice: '',
-                    pQuantity: '',
+                    pCost: 0,
+                    pPrice: 0,
+                    pQuantity: 0,
                     pSize: '',
                     pColor: '',
                     pImg: '',
@@ -606,40 +596,58 @@
             },
             newPending() {
                 const length = this.multipleSelection.length;
-                this.pendingForm = {
-                    origin: '',
-                    destination: '',
-                    trackingNo: '',
-                    tax: '',
-                    freight: '',
-                    date: '',
-                    productList:[],
-                    declareForm:{
-                        itemList: [],
-                        amount: 0
-                    }  
-                }
-                // 先做單頁
-                if(length>0){
-                    this.newPendingVisible = true;
-                    this.pendingForm.origin = this.multipleSelection[0].pLocation;
-                    if(this.pendingForm.origin == "美國"){
-                        this.pendingForm.destination = "台灣";
-                    }else if(this.pendingForm.origin == "台灣"){
-                        this.pendingForm.destination = "美國"
-                    }
-                    this.pendingForm.productList = [];
+                console.log(this.multipleSelection);
+                //check location is the same
+                if(length === 0) this.$message.error(`請選擇商品`);
+                else{
+                    var location = this.multipleSelection[0].pLocation;   
+                    var sameLoc = true;
                     for(var i=0; i<length; i++){
-                        this.pendingForm.productList.push(
-                            {
-                                pid: this.multipleSelection[i].pid,
-                                name: this.multipleSelection[i].pName,
-                                shipmentCnt: 0,
-                                size: this.multipleSelection[i].pSize,
-                                color: this.multipleSelection[i].pColor
-                            });
+                        if(this.multipleSelection[i].pLocation != location) sameLoc = false;
                     }
-                    if(this.debugMode) console.log(this.pendingForm.productList);
+                    if(sameLoc == false) this.$message.error(`請選擇相同地點商品`);
+                    else{
+                        this.pendingForm = {
+                            origin: '',
+                            destination: '',
+                            trackingNo: '',
+                            tax: '',
+                            freight: '',
+                            date: '',
+                            productList:[],
+                            declareForm:{
+                                itemList: [],
+                                amount: 0
+                            }  
+                        }
+                        // 先做單頁
+                        this.newPendingVisible = true;
+                        this.pendingForm.origin = this.multipleSelection[0].pLocation;
+                        if(this.pendingForm.origin == "美國"){
+                            this.pendingForm.destination = "台灣";
+                        }else if(this.pendingForm.origin == "台灣"){
+                            this.pendingForm.destination = "美國"
+                        }
+                        this.pendingForm.productList = [];
+                        for(var i=0; i<length; i++){
+                            this.pendingForm.productList.push(
+                                {
+                                    pid: this.multipleSelection[i].pid,
+                                    name: this.multipleSelection[i].pName,
+                                    season: this.multipleSelection[i].pSeason,
+                                    type: this.multipleSelection[i].pType,
+                                    shipmentCnt: 0,
+                                    size: this.multipleSelection[i].pSize,
+                                    color: this.multipleSelection[i].pColor,
+                                    price: this.multipleSelection[i].pPrice,
+                                    cost: this.multipleSelection[i].pCost,
+                                    img: this.multipleSelection[i].pImg,
+                                    note: this.multipleSelection[i].pNote
+                                });
+                        }
+                        if(this.debugMode) console.log(this.pendingForm.productList);
+                    }
+                    
                 }
             },
             handleSelectionChange(val) {
@@ -647,17 +655,22 @@
             },
             // 保存编辑
             saveProductEdit() {
-                this.editData(this.form);
-                this.$set(this.storageList, this.idx, this.form);
-                if(this.debugMode) console.log(this.storageList[this.idx]);
-                this.editProductVisible = false;
-                this.$message.success(`修改成功`);
+                if(this.checkNewProduct() == false) this.$message.error(`表單尚未填完或格式有誤`);
+                else{
+                    this.editData(this.form);
+                    this.$set(this.storageList, this.idx, this.form);
+                    if(this.debugMode) console.log(this.storageList[this.idx]);
+                    this.editProductVisible = false;
+                    this.$message.success(`修改成功`);
+                }
             },
 
             savePendingEdit() {
-                this.$set(this.pendingForm.productList, this.idx, this.pendingItemForm);
-                this.editPendingVisible = false;
-                this.$message.success(`修改成功`);
+                if(this.checkShipment()){
+                    this.$set(this.pendingForm.productList, this.idx, this.pendingItemForm);
+                    this.editPendingVisible = false;
+                    this.$message.success(`修改成功`);
+                }
             },
 
             saveDeclareEdit() {
@@ -674,22 +687,26 @@
             },
 
             saveNewProduct() {
-                this.insertData(this.form);
-                //this.storageList.push(this.form);
-                this.newProductVisible = false;
-                this.$message.success(`新增成功`);
-                this.getData();
-
+                //console.log(this.checkNewProduct().toString());
+                if(this.checkNewProduct()){
+                    this.insertData(this.form);
+                    this.newProductVisible = false;
+                    this.$message.success(`新增成功`);
+                    this.getData();
+                }
             },
 
 
             saveNewPending() {
-                //this.insertData(this.form);
-                //this.storageList.push(this.form);
-                this.addPendingForm(this.pendingForm);
-                this.newPendingVisible = false;
-                this.$message.success(`新增成功`);
-                //this.getData();
+                if(this.checkNewPending()){
+                    this.addPendingForm(this.pendingForm);
+                    for(var i=0; i<this.pendingForm.productList.length; i++){
+                        var idx = this.storageList.findIndex(x=>x.pid==this.pendingForm.productList[i].pid);
+                        this.storageList[idx].pQuantity -= this.pendingForm.productList[i].shipmentCnt;
+                    }
+                    this.newPendingVisible = false;
+                    this.$message.success(`新增成功`);
+                }
             },
 
             saveNewDeclare() {
@@ -740,6 +757,103 @@
                     console.log(column.order);
                 }
                 this.getData();
+            },
+
+            checkNewProduct(){
+                if(this.form.pName == '') {
+                    this.$message.error(`請填入品名`);
+                    return false;
+                }
+                if(this.form.pLocation == ''){
+                    this.$message.error(`請填入倉庫`);
+                    return false;
+                }
+                if(this.form.pSeason == ''){
+                    this.$message.error(`請填入季節`);
+                    return false;
+                }
+                if(this.form.pType == '') {
+                    this.$message.error(`請填入種類`);
+                    return false;
+                }
+                if(isNaN(this.form.pCost)) {
+                    this.$message.error(`請填入成本`);
+                    return false;
+                }
+                if(isNaN(this.form.pPrice)) {
+                    this.$message.error(`請填入售價`);
+                    return false;
+                }
+                if(isNaN(this.form.pQuantity)) {
+                    this.$message.error(`請填入數量`);
+                    return false;
+                }
+                if(this.form.pColor == ''){
+                    this.$message.error(`請填入顏色`);
+                    return false;
+                }
+                if(this.form.pSize == '') {
+                    this.$message.error(`請填入尺寸`);
+                    return false;
+                }
+                if(!isNaN(this.form.pCost) && this.form.pCost < 0){
+                    this.$message.error(`成本不能小於0`);
+                    return false;
+                }
+                if(!isNaN(this.form.pPrice) && this.form.pPrice < 0){
+                    this.$message.error(`售價不能小於0`);
+                    return false;
+                }
+                if(!isNaN(this.form.pQuantity) && this.form.pQuantity < 0){
+                    this.$message.error(`數量不能小於0`);
+                    return false;
+                }
+                return true;
+            },
+
+            checkNewPending(){
+                if(this.pendingForm.trackingNo == '') {
+                    this.$message.error(`請填入Track`);
+                    return false;
+                }
+                if(this.pendingForm.date == '') {
+                    this.$message.error(`請填入日期`);
+                    return false;
+                }
+                if(isNaN(this.pendingForm.tax)) {
+                    this.$message.error(`請填入稅金`);
+                    return false;
+                }
+                if(isNaN(this.pendingForm.freight)) {
+                    this.$message.error(`請填入運費`);
+                    return false;
+                }
+                if(!isNaN(this.pendingForm.tax) && this.pendingForm.tax < 0){
+                    this.$message.error(`稅金不能小於0`);
+                    return false;
+                }
+                if(!isNaN(this.pendingForm.freight) && this.pendingForm.freight < 0){
+                    this.$message.error(`運費不能小於0`);
+                    return false;
+                }
+                return true;
+            },
+
+            checkShipment(){
+                var idx = this.storageList.findIndex(x=>x.pid==this.pendingForm.productList[this.idx].pid);
+                if(isNaN(this.pendingItemForm.shipmentCnt)) {
+                    this.$message.error(`表單尚未填完或格式有誤`);
+                    return false;
+                }
+                if(!isNaN(this.pendingItemForm.shipmentCnt) && this.storageList[idx].pQuantity - this.pendingItemForm.shipmentCnt < 0){
+                     this.$message.error(`庫存不足`);
+                     return false;
+                }
+                if(!isNaN(this.pendingItemForm.shipmentCnt) && this.pendingItemForm.shipmentCnt < 0){
+                     this.$message.error(`出貨數量不能小於0`);
+                     return false;
+                }
+                return true;
             }
         }
     }
