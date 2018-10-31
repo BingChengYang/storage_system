@@ -6,6 +6,13 @@
             </el-breadcrumb>
         </div>
         <div class="container">
+            <div class="handle-box">
+                <el-select v-model="selectStatus" placeholder="狀態選擇" class="handle-select mr10">
+                    <el-option key="1" label="全部表單" value=""></el-option>
+                    <el-option key="2" label="運送中" value="運送中"></el-option>
+                    <el-option key="3" label="已抵達" value="已抵達"></el-option>
+                </el-select>
+            </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @sort-change='sortChange'>
                 <el-table-column prop="trackingNo" label="Tracking" min-width="50">
                 </el-table-column>
@@ -35,6 +42,7 @@
                 <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
                         <el-button size="small" type="primary" @click="handleArrive(scope.$index, scope.row)">確認抵達</el-button>
+                        <el-button size="small" type="primary" @click="handleCancel(scope.$index, scope.row)">取消轉倉</el-button>
                         <el-button size="small" type="danger" @click="handlePendingDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
@@ -97,6 +105,14 @@
                 <el-button type="primary" @click="confirmPendingRow">確定</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog title="提示" :visible.sync="cancelPendingVisible" width="300px" center>
+            <div class="del-dialog-cnt">取消轉倉</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="cancelPendingRow">確定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -110,6 +126,8 @@
                 pendingList: [],
                 tableData: [],
                 cur_page: 1,
+
+                selectStatus: '',
         
                 curPendingID: -1,
                 idx: -1,
@@ -124,6 +142,7 @@
                 showDeclareVisible: false,
                 confirmPendingVisible: false,
                 delPendingVisible: false,
+                cancelPendingVisible: false,
 
                 productList: [],
                 declareForm:{
@@ -138,7 +157,13 @@
         },
         computed: {
             data() {
-                this.tableData = this.pendingList;
+                this.tableData = this.pendingList.filter((d) => {
+                    if(this.selectStatus == ''){
+                        return d;
+                    }else{
+                        if(this.selectStatus == d.status) return d;
+                    }
+                });
                 
                 this.tableLength = this.tableData.length;
                 return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
@@ -163,6 +188,15 @@
 
             confirmArrive(pendingID){
                 this.url = '/server/confirmArrive';
+                this.$axios.post(this.url, {
+                    pendingID: pendingID,
+                }).then((res) => {
+                    
+                });
+            },
+
+            cancelPending(pendingID){
+                this.url = '/server/cancelPending';
                 this.$axios.post(this.url, {
                     pendingID: pendingID,
                 }).then((res) => {
@@ -214,11 +248,25 @@
                 else this.confirmPendingVisible = true;
             },
 
+            handleCancel(index,row){
+                this.curPendingID = row.pendingID;
+                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
+                if(this.pendingList[this.idx].status == "已抵達") this.$message.error('已運送成功');
+                else this.cancelPendingVisible = true;
+            },
+
             confirmPendingRow(){
                 this.confirmArrive(this.curPendingID);
                 this.pendingList[this.idx].status = "已抵達"; 
                 this.confirmPendingVisible = false;
                 this.$message.success('物品以抵達');
+            },
+
+            cancelPendingRow(){
+                this.cancelPending(this.curPendingID);
+                this.pendingList.splice(this.idx, 1);
+                this.$message.success('取消成功');
+                this.cancelPendingVisible = false;
             },
 
             sortChange:function(column,prop,order){

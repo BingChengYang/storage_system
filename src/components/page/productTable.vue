@@ -19,6 +19,13 @@
                     <el-option key="2" label="春夏" value="春夏"></el-option>
                     <el-option key="3" label="秋冬" value="秋冬"></el-option>
                 </el-select>
+
+                <el-select v-model="selectCurrency" placeholder="貨幣選擇" class="handle-select mr10">
+                    <el-option key="1" label="美金" value="美金"></el-option>
+                    <el-option key="2" label="台幣" value="台幣"></el-option>
+                </el-select>
+                <el-input v-model="selectName" placeholder="品名查詢" class="handle-input mr10"></el-input>
+                <h3>1美元 = <el-input v-model="exchange" placeholder="幣值" class="handle-input mr10"></el-input>台幣</h3>
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='sortChange'>
                 <el-table-column type="selection" min-width="55"></el-table-column>
@@ -56,6 +63,7 @@
                 <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="tableLength">
                 </el-pagination>
             </div>
+             <a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" class="el-button el-button--primary" clase target="_blank" >查詢匯率</a>
         </div>
 
         <el-dialog title="編輯" :visible.sync="editProductVisible" width="30%">
@@ -333,7 +341,9 @@
                 multipleSelection: [],
                 selectLocation: '',
                 selectSeason: '',
-                del_list: [],
+                selectName: '',
+                selectCurrency: '美金',
+                exchange: 30,
 
                 editProductVisible: false,
                 delProductVisible: false,
@@ -420,28 +430,40 @@
         },
         computed: {
             data() {
-
-                this.tableData = this.storageList.filter((d) => {
-                    if(this.selectLocation != ''){
-                        if(this.selectSeason == ''){
-                            if(this.selectLocation == d.pLocation) return d;
+                // we need to parse again to avoid object reference
+                this.tableData = JSON.parse(JSON.stringify(this.storageList)).filter((d) => {
+                    if(this.selectLocation != '' && d.pName.indexOf(this.selectName) > -1){
+                        if(this.selectSeason == '' && d.pName.indexOf(this.selectName) > -1){
+                            if(this.selectLocation == d.pLocation && d.pName.indexOf(this.selectName) > -1) return d;
                         }else{
-                            if((this.selectLocation == d.pLocation) && (this.selectSeason==d.pSeason)) return d;
+                            if((this.selectLocation == d.pLocation) && (this.selectSeason==d.pSeason) && d.pName.indexOf(this.selectName) > -1) return d;
                         }
                     }else{
-                        if(this.selectSeason == ''){
+                        if(this.selectSeason == '' && d.pName.indexOf(this.selectName) > -1){
                             return d;
                         }else{
-                            if(this.selectSeason==d.pSeason) return d;
+                            if(this.selectSeason==d.pSeason && d.pName.indexOf(this.selectName) > -1) return d;
                         }
                     }
                 });
+                if(this.selectCurrency == '台幣'){
+                    for(var i=0; i<this.tableData.length; i++){
+                        this.tableData[i].pCost = this.storageList[i].pCost * this.exchange;
+                        this.tableData[i].pPrice = this.storageList[i].pPrice * this.exchange;
+                    }
+                    console.log(this.storageList[0].pCost);
+                }else{
+                    for(var i=0; i<this.tableData.length; i++){
+                        this.tableData[i].pCost = this.storageList[i].pCost;
+                        this.tableData[i].pPrice = this.storageList[i].pPrice;
+                    }
+                }
                 this.tableLength = this.tableData.length;
                 return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
             }
         },
         methods: {
-            // 分页导航
+        
             handleCurrentChange(val) {
                 this.cur_page = val;
             },
@@ -877,5 +899,6 @@
         font-size: 16px;
         text-align: center
     }
+
 
 </style>

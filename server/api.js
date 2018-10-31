@@ -152,6 +152,69 @@ router.post('/confirmArrive', (req, res) => {
 	});
 });
 
+router.post('/cancelPending', (req, res) => {
+	new Promise(function(resolve){
+		var sql = "SELECT * FROM pendinglist WHERE pendingID = " + req.body.pendingID;
+		console.log(sql);
+		db.query(sql, function (err, result, fields) {
+			if (err) throw err;
+			if(debugMode) console.log(result);
+			//console.log(result);
+			resolve(result);
+		});
+	}).then(function(result){
+		var productList = JSON.parse(result[0].pendingForm).productList;
+		//console.log(productList);
+		var location = JSON.parse(result[0].pendingForm).destination;
+		//console.log(location);
+		async.forEachOf(productList,function(product,i,cb){
+			var sql = "SELECT * FROM product WHERE pid = " + product.pid;
+			console.log(sql);
+			db.query(sql, function (err, result, fields) {
+				if (err){ 
+					cb(err);
+				}else{
+					if(debugMode) console.log(result);
+					console.log(result);
+					if(result.length>0){
+						var newQuantity = parseInt(result[0].pQuantity) + parseInt(product.shipmentCnt);
+						console.log(newQuantity);
+						sql = "UPDATE product SET pQuantity = " + newQuantity +" WHERE pid = "+ result[0].pid;
+						console.log(sql);
+						db.query(sql, function (err, result, fields) {
+							if (err) throw err;
+							if(debugMode) console.log(result);
+							cb(null);
+						});	
+					}else if(result.length==0){
+						sql = "INSERT INTO product (pName,pLocation,pSeason,pType,pCost,pPrice,pQuantity,pSize,pColor,pImg,pNote) VALUES (\'"+product.name+"\',\'"+location+"\',\'"+product.season+"\',\'"+product.type+"\',\'"+product.cost+"\',\'"+product.price+"\',\'"+product.shipmentCnt+"\',\'"+product.size+"\',\'"+product.color+"\',\'"+product.img+"\',\'"+product.note+"\')";
+						db.query(sql, function (err, result, fields) {
+							if (err) throw err;
+							if(debugMode) console.log(result);
+							cb(null);
+						});	
+					}
+				}
+			});
+		},function(err){
+			if(err){
+	          //handle the error if the query throws an error
+	        }else{
+	          //whatever you wanna do after all the iterations are done
+	        }
+		});
+	});
+	
+
+	
+	var sql = "DELETE FROM pendinglist WHERE pendingID ="+req.body.pendingID;
+	console.log(sql)
+	db.query(sql, function (err, result, fields) {
+		// if (err) throw err;
+		if(debugMode == 1) console.log(result);
+	});
+});
+
 router.post('/getStorageList', (req, res) => {
 
 	new Promise(function(resolve,reject){
