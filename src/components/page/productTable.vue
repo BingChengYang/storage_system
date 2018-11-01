@@ -25,7 +25,7 @@
                     <el-option key="2" label="台幣" value="台幣"></el-option>
                 </el-select>
                 <el-input v-model="selectName" placeholder="品名查詢" class="handle-input mr10"></el-input>
-                <h3>1美元 = <el-input v-model="exchange" placeholder="幣值" class="handle-input mr10"></el-input>台幣</h3>
+                <h3>1美元 = <el-input v-model="exchange" placeholder="幣值" class="handle-exchange mr10" size="mini"></el-input>台幣</h3>
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='sortChange'>
                 <el-table-column type="selection" min-width="55"></el-table-column>
@@ -47,23 +47,25 @@
                 </el-table-column>
                 <el-table-column prop="pColor" label="顏色" min-width="50">
                 </el-table-column>
-                <el-table-column prop="pImg" label="產品圖片連結" min-width="80">
+                <el-table-column prop="pImg" label="產品圖片" min-width="80">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="showImg(scope.$index, scope.row)">檢視商品圖片</el-button>
+                    </template>
                 </el-table-column>
-                <el-table-column prop="pNote" label="產品介紹連結" min-width="80">
+                <el-table-column prop="pNote" label="產品介紹" min-width="80">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="showNote(scope.$index, scope.row)">檢視商品介紹</el-button>
+                    </template>
                 </el-table-column>
 
-                <el-table-column label="操作" min-width="180">
+                <el-table-column label="操作" min-width="150">
                     <template slot-scope="scope">
                         <el-button size="small" @click="handleProductEdit(scope.$index, scope.row)">編輯</el-button>
                         <el-button size="small" type="danger" @click="handleProductDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="tableLength">
-                </el-pagination>
-            </div>
-             <a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" class="el-button el-button--primary" clase target="_blank" >查詢匯率</a>
+             <a href="https://www.findrate.tw/bank/35/" class="el-button el-button--primary" clase target="_blank" >查詢匯率</a>
         </div>
 
         <el-dialog title="編輯" :visible.sync="editProductVisible" width="30%">
@@ -115,6 +117,10 @@
                             <el-option key="5" label="黃" value="黃"></el-option>
                             <el-option key="6" label="綠" value="綠"></el-option>
                     </el-select>
+                </el-form-item>
+                <el-form-item label="備註">
+                    <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="form.pNote">
+                    </el-input>
                 </el-form-item>
 
             </el-form>
@@ -206,7 +212,21 @@
                             <el-option key="6" label="綠" value="綠"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="備註">
+                    <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="form.pNote">
+                    </el-input>
+                </el-form-item>
             </el-form>
+            <el-upload
+                class="avatar-uploader"
+                action="/server/uploadImg"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload"
+                >
+                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="newProductVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveNewProduct">確定</el-button>
@@ -325,6 +345,14 @@
                 <el-button type="primary" @click="deleteDeclareRow">確定</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog title="商品介紹" :visible.sync="showNoteVisible" width="300px" center>
+            <div><el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="沒有內容" :disabled="true" v-model="note">
+            </el-input></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showNoteVisible = false">關閉</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -337,7 +365,6 @@
                 url: '/server/getStorageList',
                 storageList: [],
                 tableData: [],
-                cur_page: 1,
                 multipleSelection: [],
                 selectLocation: '',
                 selectSeason: '',
@@ -355,6 +382,8 @@
                 newPendingVisible: false,
                 newDeclareVisible: false,
                 newDeclareItemVisible: false,
+                showNoteVisible: false,
+                showImgVisible: false,
 
                 form: {
                     pid: '',
@@ -372,7 +401,6 @@
                 },
                 idx: -1,
                 tableLength: -1,
-                imageUrl: '',
 
                 sortKey: '',
                 sortOrder: '',
@@ -422,7 +450,10 @@
                     name:'',
                     quantity:'',
                     price:''
-                }
+                },
+
+                note: '',
+                imageUrl: ''
             }
         },
         created() {
@@ -459,14 +490,10 @@
                     }
                 }
                 this.tableLength = this.tableData.length;
-                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
+                return this.tableData;
             }
         },
         methods: {
-        
-            handleCurrentChange(val) {
-                this.cur_page = val;
-            },
             getData() {    
                 this.url = '/server/getStorageList';
                 this.$axios.post(this.url, {
@@ -602,6 +629,11 @@
                     price: ''
                 }
                 this.newDeclareItemVisible = true;
+            },
+
+            showNote(index , row){
+                this.note = row.pNote;
+                this.showNoteVisible = true;
             },
 
             handleProductDelete(index, row) {
@@ -876,6 +908,22 @@
                      return false;
                 }
                 return true;
+            },
+
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+            },
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG) {
+                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isJPG && isLt2M;
             }
         }
     }
@@ -898,6 +946,32 @@
     .del-dialog-cnt{
         font-size: 16px;
         text-align: center
+    }
+    .handle-exchange {
+        width: 100px;
+    }
+    .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+    }
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+    }
+    .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
     }
 
 
