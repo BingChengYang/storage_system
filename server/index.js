@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(api);
+app.use(express.static(__dirname + '/img'));
 
 
 app.listen(app.get('port'), function () {

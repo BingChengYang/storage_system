@@ -14,10 +14,14 @@
                     <el-option key="2" label="美國" value="美國"></el-option>
                     <el-option key="3" label="台灣" value="台灣"></el-option>
                 </el-select>
-                <el-select v-model="selectSeason" placeholder="季節選擇" class="handle-select mr10">
-                    <el-option key="1" label="全年" value=""></el-option>
+                <el-select v-model="selectType" placeholder="種類選擇" class="handle-select mr10">
+                    <el-option key="1" label="全部種類" value=""></el-option>
                     <el-option key="2" label="春夏" value="春夏"></el-option>
                     <el-option key="3" label="秋冬" value="秋冬"></el-option>
+                    <el-option key="4" label="包款" value="包款"></el-option>
+                    <el-option key="5" label="配件" value="配件"></el-option>
+                    <el-option key="6" label="鞋子" value="鞋子"></el-option>
+                
                 </el-select>
 
                 <el-select v-model="selectCurrency" placeholder="貨幣選擇" class="handle-select mr10">
@@ -32,8 +36,6 @@
                 <el-table-column prop="pName" label="品名" min-width="50">
                 </el-table-column>
                 <el-table-column prop="pLocation" label="所在地" min-width="50">
-                </el-table-column>
-                <el-table-column prop="pSeason" label="季度" min-width="50">
                 </el-table-column>
                 <el-table-column prop="pType" label="種類" min-width="50">
                 </el-table-column>
@@ -79,16 +81,13 @@
                             <el-option key="2" label="台灣" value="台灣"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="季度">
-                    <el-select v-model="form.pSeason">
-                            <el-option key="1" label="春夏" value="春夏"></el-option>
-                            <el-option key="2" label="秋冬" value="秋冬"></el-option>
-                    </el-select>
-                </el-form-item>
                 <el-form-item label="種類">
                     <el-select v-model="form.pType">
-                            <el-option key="1" label="長袖" value="長袖"></el-option>
-                            <el-option key="2" label="短袖" value="短袖"></el-option>
+                        <el-option key="1" label="春夏" value="春夏"></el-option>
+                        <el-option key="2" label="秋冬" value="秋冬"></el-option>
+                        <el-option key="2" label="包款" value="包款"></el-option>
+                        <el-option key="2" label="配件" value="配件"></el-option>
+                        <el-option key="2" label="鞋子" value="鞋子"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
@@ -173,16 +172,14 @@
                             <el-option key="2" label="台灣" value="台灣"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="季度">
-                    <el-select v-model="form.pSeason">
-                            <el-option key="1" label="春夏" value="春夏"></el-option>
-                            <el-option key="2" label="秋冬" value="秋冬"></el-option>
-                    </el-select>
-                </el-form-item>
+                
                 <el-form-item label="種類">
                     <el-select v-model="form.pType">
-                            <el-option key="1" label="長袖" value="長袖"></el-option>
-                            <el-option key="2" label="短袖" value="短袖"></el-option>
+                        <el-option key="1" label="春夏" value="春夏"></el-option>
+                        <el-option key="2" label="秋冬" value="秋冬"></el-option>
+                        <el-option key="2" label="包款" value="包款"></el-option>
+                        <el-option key="2" label="配件" value="配件"></el-option>
+                        <el-option key="2" label="鞋子" value="鞋子"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
@@ -218,14 +215,13 @@
                 </el-form-item>
             </el-form>
             <el-upload
-                class="avatar-uploader"
                 action="/server/uploadImg"
-                :show-file-list="false"
+                list-type="picture-card"
+                :on-remove="handleRemove"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload"
-                >
-                <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                :file-list="[]">
+                <i class="el-icon-plus"></i>
             </el-upload>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="newProductVisible = false">取消</el-button>
@@ -346,11 +342,27 @@
             </span>
         </el-dialog>
 
-        <el-dialog title="商品介紹" :visible.sync="showNoteVisible" width="300px" center>
+        <el-dialog title="商品介紹" :visible.sync="showNoteVisible" width="40%" center>
             <div><el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="沒有內容" :disabled="true" v-model="note">
             </el-input></div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="showNoteVisible = false">關閉</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="商品照片" :visible.sync="showImgVisible" width="40%" center>
+            <div><template>
+                <div>
+                    <el-carousel :autoplay="false">
+                        <el-carousel-item v-for="img in showImgUrl" :key="img">
+                            <img :src="img" alt="沒有照片" width="100%" height="100%">
+                        </el-carousel-item>
+                    </el-carousel>
+                </div>
+                
+            </template></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showImgVisible = false">關閉</el-button>
             </span>
         </el-dialog>
     </div>
@@ -367,7 +379,7 @@
                 tableData: [],
                 multipleSelection: [],
                 selectLocation: '',
-                selectSeason: '',
+                selectType: '',
                 selectName: '',
                 selectCurrency: '美金',
                 exchange: 30,
@@ -389,14 +401,13 @@
                     pid: '',
                     pName: '',
                     pLocation: '',
-                    pSeason: '',
                     pType: '',
                     pCost: 0,
                     pPrice: 0,
                     pQuantity: 0,
                     pSize: '',
                     pColor: '',
-                    pImg: '',
+                    pImg: [],
                     pNote:''
                 },
                 idx: -1,
@@ -429,7 +440,6 @@
                     size: '',
                     cost: '',
                     price: '',
-                    season: '',
                     type: '',
                     img: '',
                     note: ''
@@ -453,7 +463,8 @@
                 },
 
                 note: '',
-                imageUrl: ''
+                imageUrl: [],
+                showImgUrl: [],
             }
         },
         created() {
@@ -464,16 +475,16 @@
                 // we need to parse again to avoid object reference
                 this.tableData = JSON.parse(JSON.stringify(this.storageList)).filter((d) => {
                     if(this.selectLocation != '' && d.pName.indexOf(this.selectName) > -1){
-                        if(this.selectSeason == '' && d.pName.indexOf(this.selectName) > -1){
+                        if(this.selectType == '' && d.pName.indexOf(this.selectName) > -1){
                             if(this.selectLocation == d.pLocation && d.pName.indexOf(this.selectName) > -1) return d;
                         }else{
-                            if((this.selectLocation == d.pLocation) && (this.selectSeason==d.pSeason) && d.pName.indexOf(this.selectName) > -1) return d;
+                            if((this.selectLocation == d.pLocation) && (this.selectType==d.pType) && d.pName.indexOf(this.selectName) > -1) return d;
                         }
                     }else{
-                        if(this.selectSeason == '' && d.pName.indexOf(this.selectName) > -1){
+                        if(this.selectType == '' && d.pName.indexOf(this.selectName) > -1){
                             return d;
                         }else{
-                            if(this.selectSeason==d.pSeason && d.pName.indexOf(this.selectName) > -1) return d;
+                            if(this.selectType==d.pType && d.pName.indexOf(this.selectName) > -1) return d;
                         }
                     }
                 });
@@ -552,7 +563,6 @@
                     pid: item.pid,
                     pName: item.pName,
                     pLocation: item.pLocation,
-                    pSeason: item.pSeason,
                     pType: item.pType,
                     pCost: item.pCost,
                     pPrice: item.pPrice,
@@ -576,7 +586,6 @@
                     shipmentCnt: item.shipmentCnt,
                     cost: item.cost,
                     price: item.price,
-                    season: item.season,
                     type: item.type,
                     img: item.img,
                     note: item.note
@@ -595,19 +604,18 @@
                 this.editDeclareVisible = true;
             },
             newProduct() {
-                
+                this.imageUrl = [];
                 this.form = {
                     pid: '',
                     pName: '',
                     pLocation: '',
-                    pSeason: '',
                     pType: '',
                     pCost: 0,
                     pPrice: 0,
                     pQuantity: 0,
                     pSize: '',
                     pColor: '',
-                    pImg: '',
+                    pImg: [],
                     pNote: ''
                 }
                 this.newProductVisible = true;
@@ -634,6 +642,15 @@
             showNote(index , row){
                 this.note = row.pNote;
                 this.showNoteVisible = true;
+            },
+
+            showImg(index , row){
+                this.showImgUrl = [];
+                var imgList = JSON.parse(row.pImg).list;
+                for(var i=0; i<imgList.length; i++){
+                    this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
+                }
+                this.showImgVisible = true;
             },
 
             handleProductDelete(index, row) {
@@ -688,7 +705,6 @@
                                 {
                                     pid: this.multipleSelection[i].pid,
                                     name: this.multipleSelection[i].pName,
-                                    season: this.multipleSelection[i].pSeason,
                                     type: this.multipleSelection[i].pType,
                                     shipmentCnt: 0,
                                     size: this.multipleSelection[i].pSize,
@@ -743,6 +759,7 @@
             saveNewProduct() {
                 //console.log(this.checkNewProduct().toString());
                 if(this.checkNewProduct()){
+                    this.form.pImg = this.imageUrl;
                     this.insertData(this.form);
                     this.newProductVisible = false;
                     this.$message.success(`新增成功`);
@@ -820,10 +837,6 @@
                 }
                 if(this.form.pLocation == ''){
                     this.$message.error(`請填入倉庫`);
-                    return false;
-                }
-                if(this.form.pSeason == ''){
-                    this.$message.error(`請填入季節`);
                     return false;
                 }
                 if(this.form.pType == '') {
@@ -911,20 +924,31 @@
             },
 
             handleAvatarSuccess(res, file) {
-                this.imageUrl = URL.createObjectURL(file.raw);
+                if(this.debugMode) console.log(file);
+
+                this.imageUrl.push(file.response.img);
             },
             beforeAvatarUpload(file) {
                 const isJPG = file.type === 'image/jpeg';
                 const isLt2M = file.size / 1024 / 1024 < 2;
 
                 if (!isJPG) {
-                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                    this.$message.error('請上傳.jpg照片');
                 }
                 if (!isLt2M) {
-                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                    this.$message.error('上傳照片請不要超過2MB');
                 }
                 return isJPG && isLt2M;
-            }
+            },
+
+            handleRemove(file, fileList) {
+                var index = this.imageUrl.indexOf(file.response.img);
+                if (index > -1) {
+                    this.imageUrl.splice(index, 1);
+                }
+                //if(this.debugMode) 
+                console.log(this.imageUrl);
+            },
         }
     }
 
@@ -969,8 +993,8 @@
         text-align: center;
     }
     .avatar {
-        width: 178px;
-        height: 178px;
+        width: 100%;
+        height: 100%;
         display: block;
     }
 
