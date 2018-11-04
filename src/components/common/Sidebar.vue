@@ -53,11 +53,11 @@
                         index: 'pendingTable',
                         title: '轉倉單查詢'
                     },
-                    {
-                        icon: 'el-icon-tickets',
-                        index: 'form',
-                        title: '訂單輸入'
-                    },
+                    // {
+                    //     icon: 'el-icon-tickets',
+                    //     index: 'form',
+                    //     title: '訂單輸入'
+                    // },
                     // {
                     //     icon: 'el-icon-message',
                     //     index: 'tabs',
@@ -92,11 +92,11 @@
                     //         }
                     //     ]
                     // },
-                    {
-                        icon: 'el-icon-star-on',
-                        index: 'charts',
-                        title: '報表'
-                    },
+                    // {
+                    //     icon: 'el-icon-star-on',
+                    //     index: 'charts',
+                    //     title: '報表'
+                    // },
                     // {
                     //     icon: 'el-icon-rank',
                     //     index: 'drag',

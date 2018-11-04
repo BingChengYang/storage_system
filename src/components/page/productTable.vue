@@ -85,9 +85,9 @@
                     <el-select v-model="form.pType">
                         <el-option key="1" label="春夏" value="春夏"></el-option>
                         <el-option key="2" label="秋冬" value="秋冬"></el-option>
-                        <el-option key="2" label="包款" value="包款"></el-option>
-                        <el-option key="2" label="配件" value="配件"></el-option>
-                        <el-option key="2" label="鞋子" value="鞋子"></el-option>
+                        <el-option key="3" label="包款" value="包款"></el-option>
+                        <el-option key="4" label="配件" value="配件"></el-option>
+                        <el-option key="5" label="鞋子" value="鞋子"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
@@ -121,8 +121,26 @@
                     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="form.pNote">
                     </el-input>
                 </el-form-item>
-
             </el-form>
+            <div><template>
+                <el-carousel :autoplay="false">
+                    <el-carousel-item v-for="img in showImgUrl" :key="img">
+                        <el-button type="danger" icon="el-icon-delete" circle  @click="handleDelImg(img)" class="delImg"></el-button>
+                        <img :src="img" alt="沒有照片" width="100%" height="100%">  
+                    </el-carousel-item>
+                </el-carousel>
+            </template></div>
+           
+            <el-upload
+                action="/server/uploadImg"
+                list-type="picture-card"
+                :on-remove="handleRemove"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload"
+                :file-list="[]">
+                <i class="el-icon-plus"></i>
+            </el-upload>
+             
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editProductVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveProductEdit">確定</el-button>
@@ -177,9 +195,9 @@
                     <el-select v-model="form.pType">
                         <el-option key="1" label="春夏" value="春夏"></el-option>
                         <el-option key="2" label="秋冬" value="秋冬"></el-option>
-                        <el-option key="2" label="包款" value="包款"></el-option>
-                        <el-option key="2" label="配件" value="配件"></el-option>
-                        <el-option key="2" label="鞋子" value="鞋子"></el-option>
+                        <el-option key="3" label="包款" value="包款"></el-option>
+                        <el-option key="4" label="配件" value="配件"></el-option>
+                        <el-option key="5" label="鞋子" value="鞋子"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
@@ -342,12 +360,21 @@
             </span>
         </el-dialog>
 
+        <el-dialog title="提示" :visible.sync="delImgVisible" width="300px" center>
+            <div class="del-dialog-cnt">刪除不可恢復,確定是否刪除</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delImgVisible = false">取消</el-button>
+                <el-button type="primary" @click="deleteImgRow">確定</el-button>
+            </span>
+        </el-dialog>
+
         <el-dialog title="商品介紹" :visible.sync="showNoteVisible" width="40%" center>
             <div><el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="沒有內容" :disabled="true" v-model="note">
             </el-input></div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="showNoteVisible = false">關閉</el-button>
             </span>
+
         </el-dialog>
 
         <el-dialog title="商品照片" :visible.sync="showImgVisible" width="40%" center>
@@ -396,6 +423,7 @@
                 newDeclareItemVisible: false,
                 showNoteVisible: false,
                 showImgVisible: false,
+                delImgVisible: false,
 
                 form: {
                     pid: '',
@@ -407,7 +435,9 @@
                     pQuantity: 0,
                     pSize: '',
                     pColor: '',
-                    pImg: [],
+                    pImg: {
+                        list: []
+                    },
                     pNote:''
                 },
                 idx: -1,
@@ -465,6 +495,7 @@
                 note: '',
                 imageUrl: [],
                 showImgUrl: [],
+                delImg: '',
             }
         },
         created() {
@@ -519,7 +550,12 @@
             editData(item){
                 if(this.debugMode) console.log(item.pid);
                 this.url = '/server/updateStorageList';
+                item.uploadList = this.imageUrl;
                 this.$axios.post(this.url, item).then((res) => {
+                    console.log(res);
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                    }
                 });
             },
             delData(pid){
@@ -531,6 +567,7 @@
             insertData(item){
                 this.url = '/server/insertStorageList';
                 if(this.debugMode) console.log(item);
+                item.uploadList = this.imageUrl;
                 this.$axios.post(this.url,item).then((res) => {});
                 
             },
@@ -539,6 +576,20 @@
                 this.url = '/server/addPendingForm';
                 if(this.debugMode) console.log(pendingForm);
                 this.$axios.post(this.url,pendingForm).then((res) => {});
+            },
+
+            deleteImg(delImg , pid){
+                this.url = '/server/delImg';
+                delImg = delImg.replace("http://127.0.0.1:3000/",""),
+                console.log(delImg);
+                this.$axios.post(this.url,{
+                    delImg: delImg,
+                    pid: pid
+                }).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                    }
+                });
             },
 
             formatter(row, column) {
@@ -559,6 +610,12 @@
                 this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
                 console.log(row.pid);
                 const item = this.storageList[this.idx];
+                this.imageUrl = [];
+                this.showImgUrl = [];
+                var imgList = JSON.parse(row.pImg).list;
+                for(var i=0; i<imgList.length; i++){
+                    this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
+                }
                 this.form = {
                     pid: item.pid,
                     pName: item.pName,
@@ -615,7 +672,9 @@
                     pQuantity: 0,
                     pSize: '',
                     pColor: '',
-                    pImg: [],
+                    pImg: {
+                        list: []
+                    },
                     pNote: ''
                 }
                 this.newProductVisible = true;
@@ -647,6 +706,7 @@
             showImg(index , row){
                 this.showImgUrl = [];
                 var imgList = JSON.parse(row.pImg).list;
+                console.log(imgList);
                 for(var i=0; i<imgList.length; i++){
                     this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
                 }
@@ -664,6 +724,10 @@
             handleDeclareDelete(index, row) {
                 this.idx = index;
                 this.delDeclareVisible = true;
+            },
+            handleDelImg(img){
+                this.delImg = img;
+                this.delImgVisible = true;
             },
             newPending() {
                 const length = this.multipleSelection.length;
@@ -759,7 +823,6 @@
             saveNewProduct() {
                 //console.log(this.checkNewProduct().toString());
                 if(this.checkNewProduct()){
-                    this.form.pImg = this.imageUrl;
                     this.insertData(this.form);
                     this.newProductVisible = false;
                     this.$message.success(`新增成功`);
@@ -816,6 +879,16 @@
                 this.calAmount();
                 this.$message.success('刪除成功');
                 this.delDeclareVisible = false;
+            },
+
+            deleteImgRow(){
+                var index = this.showImgUrl.indexOf(this.delImg);
+                if (index > -1) {
+                    this.showImgUrl.splice(index, 1);
+                }
+                this.deleteImg(this.delImg,this.form.pid);
+                this.$message.success('刪除成功');
+                this.delImgVisible = false;
             },
 
             sortChange:function(column,prop,order){
@@ -949,6 +1022,9 @@
                 //if(this.debugMode) 
                 console.log(this.imageUrl);
             },
+            test(){
+                console.log("fking awesome");
+            }
         }
     }
 
@@ -974,29 +1050,10 @@
     .handle-exchange {
         width: 100px;
     }
-    .avatar-uploader .el-upload {
-        border: 1px dashed #d9d9d9;
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
+    .delImg{
+        position:absolute;
+        right:10px;
+        top: 10px;
     }
-    .avatar-uploader .el-upload:hover {
-        border-color: #409EFF;
-    }
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 178px;
-        height: 178px;
-        line-height: 178px;
-        text-align: center;
-    }
-    .avatar {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-
 
 </style>

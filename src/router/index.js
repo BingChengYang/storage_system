@@ -34,11 +34,11 @@ export default new Router({
                 //     component: resolve => require(['../components/page/Tabs.vue'], resolve),
                 //     meta: { title: 'tab选项卡' }
                 // },
-                {
-                    path: '/form',
-                    component: resolve => require(['../components/page/BaseForm.vue'], resolve),
-                    meta: { title: '訂單輸入' }
-                },
+                // {
+                //     path: '/form',
+                //     component: resolve => require(['../components/page/BaseForm.vue'], resolve),
+                //     meta: { title: '訂單輸入' }
+                // },
                 // {
                 //     // 富文本编辑器组件
                 //     path: '/editor',
@@ -51,24 +51,24 @@ export default new Router({
                 //     component: resolve => require(['../components/page/Markdown.vue'], resolve),
                 //     meta: { title: 'markdown编辑器' }    
                 // },
-                {
-                    // 图片上传组件
-                    path: '/upload',
-                    component: resolve => require(['../components/page/Upload.vue'], resolve),
-                    meta: { title: '產品照片上傳' }   
-                },
-                {
-                    // vue-schart组件
-                    path: '/charts',
-                    component: resolve => require(['../components/page/BaseCharts.vue'], resolve),
-                    meta: { title: '報表' }
-                },
-                {
-                    // 拖拽列表组件
-                    path: '/drag',
-                    component: resolve => require(['../components/page/DragList.vue'], resolve),
-                    meta: { title: '拖拽列表' }
-                },
+                // {
+                //     // 图片上传组件
+                //     path: '/upload',
+                //     component: resolve => require(['../components/page/Upload.vue'], resolve),
+                //     meta: { title: '產品照片上傳' }   
+                // },
+                // {
+                //     // vue-schart组件
+                //     path: '/charts',
+                //     component: resolve => require(['../components/page/BaseCharts.vue'], resolve),
+                //     meta: { title: '報表' }
+                // },
+                // {
+                //     // 拖拽列表组件
+                //     path: '/drag',
+                //     component: resolve => require(['../components/page/DragList.vue'], resolve),
+                //     meta: { title: '拖拽列表' }
+                // },
                 // {
                 //     // 权限页面
                 //     path: '/permission',

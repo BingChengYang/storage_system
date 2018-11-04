@@ -96,14 +96,14 @@ router.post('/addPendingForm', (req, res) => {
 });
 
 router.post('/insertStorageList', (req, res) => {
-	if(debugMode) console.log(req.body);
+	//if(debugMode) console.log(req.body);
 	var img = {
 		list: []
 	};
-	for(var i=0; i<req.body.pImg.length; i++){
-		var path_resolve = path.resolve(oldPath, req.body.pImg[i]); // 解析成絕對路徑
+	for(var i=0; i<req.body.uploadList.length; i++){
+		var path_resolve = path.resolve(oldPath, req.body.uploadList[i]); // 解析成絕對路徑
 		// 輸出內容：/Users/carlos/Documents/test/other/other.txt
-		img.list.push(req.body.pName + req.body.pColor + i + path.extname(path_resolve));
+		img.list.push(req.body.pLocation+ req.body.pSize + req.body.pName + req.body.pColor + i + path.extname(path_resolve));
 	}
 	
 	var sql = "INSERT INTO product (pName,pLocation,pType,pCost,pPrice,pQuantity,pSize,pColor,pImg,pNote) VALUES ("+db.escape(req.body.pName)+","+db.escape(req.body.pLocation)+","+db.escape(req.body.pType)+","+db.escape(req.body.pCost)+","+db.escape(req.body.pPrice)+","+db.escape(req.body.pQuantity)+","+db.escape(req.body.pSize)+","+db.escape(req.body.pColor)+","+db.escape(JSON.stringify(img))+","+db.escape(req.body.pNote)+")";
@@ -114,8 +114,8 @@ router.post('/insertStorageList', (req, res) => {
 		if(debugMode) console.log(result);
 	});
 	new Promise(function(resolve){
-		for(var i=0; i<req.body.pImg.length; i++){
-			var oldImg = path.join(__dirname,oldPath, req.body.pImg[i]);
+		for(var i=0; i<req.body.uploadList.length; i++){
+			var oldImg = path.join(__dirname,oldPath, req.body.uploadList[i]);
 			var newImg = path.join(__dirname,newPath, img.list[i]);
 			move(oldImg,newImg,function(err){
 				//console.log(err);
@@ -124,7 +124,7 @@ router.post('/insertStorageList', (req, res) => {
 		}
 	}).then(function(result){
 		empty(oldPath, false, (o)=>{
-		  	if(o.error) console.error(err);
+		  	//if(o.error) console.error(err);
 		  	//console.log(o.removed);
 		  	//console.log(o.failed);
 		});
@@ -133,12 +133,25 @@ router.post('/insertStorageList', (req, res) => {
 
 router.post('/delStorageList', (req, res) => {
 	if(debugMode) console.log(req.body.pid);
-	
-	var sql = "DELETE FROM product WHERE pid="+db.escape(req.body.pid);
-	console.log(sql)
-	db.query(sql, function (err, result, fields) {
-		// if (err) throw err;
-		if(debugMode == 1) console.log(result);
+	new Promise(function(resolve){
+		var sql = "SELECT pImg FROM product WHERE pid = "+db.escape(req.body.pid);
+		db.query(sql, function (err, result, fields) {
+			// if (err) throw err;
+			//if(debugMode == 1) 
+				console.log(result);
+				var imgList = JSON.parse(result[0].pImg).list;
+				for(var i=0; i<imgList.length; i++){
+					fs.unlink(path.join(__dirname,newPath, imgList[i]),function(result){});
+				}
+				resolve("done");
+		});
+	}).then(function(result){
+		var sql = "DELETE FROM product WHERE pid="+db.escape(req.body.pid);
+		console.log(sql)
+		db.query(sql, function (err, result, fields) {
+			// if (err) throw err;
+			if(debugMode == 1) console.log(result);
+		});
 	});
 });
 
@@ -152,13 +165,72 @@ router.post('/delPendingForm', (req, res) => {
 	});
 });
 
+router.post('/delImg', (req, res) => {
+	var delImg = req.body.delImg;
+	var pid = req.body.pid;
+	var sql = "SELECT pImg FROM product WHERE pid = "+db.escape(pid);
+	new Promise(function(resolve){
+		db.query(sql, function (err, result, fields) {
+			// if (err) throw err;
+			//if(debugMode) console.log(result);	
+			var imgList = JSON.parse(result[0].pImg).list;
+			var index = imgList.indexOf(delImg);
+            if (index > -1) {
+               	imgList.splice(index, 1);
+            }
+            fs.unlink(path.join(__dirname,newPath, delImg),function(result){});
+			resolve({
+				list: imgList
+			});
+		});
+	}).then(function(result){
+		var sql = "UPDATE product SET pImg = " + db.escape(JSON.stringify(result)) + " WHERE pid = " + db.escape(pid);
+		db.query(sql, function (err, result, fields) {
+			// if (err) throw err;
+			if(debugMode == 1) console.log(result);
+			res.send({
+			  	errCode:0
+			});
+		});
+	});
+});
+
 router.post('/updateStorageList', (req, res) => {
 	if(debugMode) console.log(req.body.pid);
+
+	var img = JSON.parse(req.body.pImg);
+	var oldLength = img.list.length;
+	for(var i=0; i<req.body.uploadList.length; i++){
+		var path_resolve = path.resolve(oldPath, req.body.uploadList[i]); // 解析成絕對路徑
+		// 輸出內容：/Users/carlos/Documents/test/other/other.txt
+		var idx = i+oldLength;
+		img.list.push(req.body.pLocation+ req.body.pSize +req.body.pName + req.body.pColor + idx + path.extname(path_resolve));
+	}
 	
-	var sql = "UPDATE product SET pName="+db.escape(req.body.pName)+",pLocation="+db.escape(req.body.pLocation)+",pType="+db.escape(req.body.pType)+",pCost="+db.escape(req.body.pCost)+",pPrice="+db.escape(req.body.pPrice)+",pQuantity="+db.escape(req.body.pQuantity)+",pSize="+db.escape(req.body.pSize)+",pColor="+db.escape(req.body.pColor)+",pNote="+db.escape(req.body.pNote)+",pImg="+db.escape(req.body.pImg)+" WHERE pid="+db.escape(req.body.pid);
+	var sql = "UPDATE product SET pName="+db.escape(req.body.pName)+",pLocation="+db.escape(req.body.pLocation)+",pType="+db.escape(req.body.pType)+",pCost="+db.escape(req.body.pCost)+",pPrice="+db.escape(req.body.pPrice)+",pQuantity="+db.escape(req.body.pQuantity)+",pSize="+db.escape(req.body.pSize)+",pColor="+db.escape(req.body.pColor)+",pNote="+db.escape(req.body.pNote)+",pImg="+db.escape(JSON.stringify(img))+" WHERE pid="+db.escape(req.body.pid);
 	db.query(sql, function (err, result, fields) {
 		if (err) throw err;
 		if(debugMode == 1) console.log(result);
+	});
+
+	new Promise(function(resolve){
+		for(var i=0; i<req.body.uploadList.length; i++){
+			var oldImg = path.join(__dirname,oldPath, req.body.uploadList[i]);
+			var newImg = path.join(__dirname,newPath, img.list[i+oldLength]);
+			move(oldImg,newImg,function(err){
+				//console.log(err);
+			});
+			resolve("done");
+		}
+	}).then(function(result){
+		empty(oldPath, false, (o)=>{
+		  	//if(o.error) console.error(err);
+		  	//console.log(o.removed);
+		  	//console.log(o.failed);
+		  	res.send({
+			  	errCode:0
+			});
+		});
 	});
 });
 
