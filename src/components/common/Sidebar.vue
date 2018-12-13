@@ -38,11 +38,11 @@
             return {
                 collapse: false,
                 items: [
-                    // {
-                    //     icon: 'el-icon-setting',
-                    //     index: 'dashboard',
-                    //     title: '系统首页'
-                    // },
+                    {
+                        icon: 'el-icon-setting',
+                        index: 'dashboard',
+                        title: '帳號資訊'
+                    },
                     {
                         icon: 'el-icon-tickets',
                         index: 'productTable',
