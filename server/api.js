@@ -74,6 +74,9 @@ router.post('/insertStorageList', (req, res) => {
 	db.query(sql, function (err, result, fields) {
 		if (err) throw err;
 		if(debugMode) console.log(result);
+		res.send({
+			errCode:0
+		});
 	});
 	new Promise(function(resolve){
 		for(var i=0; i<req.body.uploadList.length; i++){
@@ -113,6 +116,9 @@ router.post('/delStorageList', (req, res) => {
 		db.query(sql, function (err, result, fields) {
 			// if (err) throw err;
 			if(debugMode == 1) console.log(result);
+			res.send({
+			  	errCode:0
+			});
 		});
 	});
 });
@@ -163,6 +169,9 @@ router.post('/updateStorageList', (req, res) => {
 	db.query(sql, function (err, result, fields) {
 		if (err) throw err;
 		if(debugMode === 1) console.log(result);
+		res.send({
+			errCode:0
+		});
 	});
 
 	new Promise(function(resolve){
@@ -304,6 +313,11 @@ router.post('/addPendingForm', (req, res) => {
 					if (err) throw err;
 					if(debugMode) console.log(result);
 					cb(null);
+					if(i === productList.length - 1){
+						res.send({
+							errCode:0
+						});
+					}
 				});	
 			}
 		});
@@ -362,8 +376,7 @@ router.post('/addSaleForm', (req, res) => {
 
 		db.query("INSERT INTO salelist (saleForm,status) VALUES ("+db.escape(JSON.stringify(req.body))+",\'銷售中\')", function (err, result, fields) {
 			if (err) throw err;
-			///if(debugMode) 
-				console.log(result);
+			
 		});
 	//});
 });
@@ -378,6 +391,9 @@ router.post('/delPendingForm', (req, res) => {
 	db.query(sql, function (err, result, fields) {
 		// if (err) throw err;
 		if(debugMode === 1) console.log(result);
+		res.send({
+			errCode:0
+		});
 	});
 });
 
@@ -425,6 +441,11 @@ router.post('/confirmArrive', (req, res) => {
 							if (err) throw err;
 							if(debugMode) console.log(result);
 							cb(null);
+							if(i === productList.length-1){
+								res.send({
+									errCode:0
+								});
+							}
 						});	
 					}else if(result.length===0){
 						sql = "INSERT INTO product (pName,pLocation,pType,pCost,pPrice,pQuantity,pSize,pColor,pImg,pNote) VALUES ("+db.escape(product.name)+","+db.escape(location)+","+db.escape(product.type)+","+db.escape(product.cost)+","+db.escape(product.price)+","+db.escape(product.shipmentCnt)+","+db.escape(product.size)+","+db.escape(product.color)+","+db.escape(product.img)+","+db.escape(product.note)+")";
@@ -432,6 +453,11 @@ router.post('/confirmArrive', (req, res) => {
 							if (err) throw err;
 							if(debugMode) console.log(result);
 							cb(null);
+							if(i === productList.length-1){
+								res.send({
+									errCode:0
+								});
+							}
 						});	
 					}
 				}
@@ -485,6 +511,11 @@ router.post('/cancelPending', (req, res) => {
 							if (err) throw err;
 							if(debugMode) console.log(result);
 							cb(null);
+							if(i === productList.length-1){
+								res.send({
+									errCode:0
+								});
+							}
 						});	
 					}else if(result.length===0){
 						sql = "INSERT INTO product (pName,pLocation,pType,pCost,pPrice,pQuantity,pSize,pColor,pImg,pNote) VALUES ("+db.escape(product.name)+","+db.escape(location)+","+db.escape(product.type)+","+db.escape(product.cost)+","+db.escape(product.price)+","+db.escape(product.shipmentCnt)+","+db.escape(product.size)+","+db.escape(product.color)+","+db.escape(product.img)+","+db.escape(product.note)+")";
@@ -492,6 +523,11 @@ router.post('/cancelPending', (req, res) => {
 							if (err) throw err;
 							if(debugMode) console.log(result);
 							cb(null);
+							if(i === productList.length-1){
+								res.send({
+									errCode:0
+								});
+							}
 						});	
 					}
 				}
@@ -594,6 +630,9 @@ router.post('/delSaleForm', (req, res) => {
 	db.query(sql, function (err, result, fields) {
 		// if (err) throw err;
 		if(debugMode === 1) console.log(result);
+		res.send({
+			errCode:0
+		});
 	});
 });
 
@@ -643,6 +682,9 @@ router.post('/confirmSale', (req, res) => {
 				db.query(sql, function (err, result, fields) {
 					if (err) throw err;
 					if(debugMode === 1) console.log(result);
+					res.send({
+						errCode:0
+					});
 				});
 			});
 		});
@@ -686,6 +728,11 @@ router.post('/cancelSale', (req, res) => {
 							if (err) throw err;
 							if(debugMode) console.log(result);
 							cb(null);
+							if(i === productList.length - 1){
+								res.send({
+									errCode:0
+								});
+							}
 						});	
 					}
 				}

@@ -29,7 +29,7 @@
                 <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
                         <el-button size="small" type="primary" @click="handleSale(scope.$index, scope.row)">確認銷售</el-button>
-                        <el-button size="small" type="primary" @click="handleCancel(scope.$index, scope.row)">取消銷售</el-button>
+                        <el-button size="small" type="success" @click="handleCancel(scope.$index, scope.row)">取消銷售</el-button>
                         <el-button size="small" type="danger" @click="handleSaleDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
@@ -161,6 +161,7 @@
                 }).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`物品銷售成功`);
                     }
                 });
             },
@@ -172,6 +173,7 @@
                 }).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`取消成功`);
                     }
                 });
             },
@@ -183,6 +185,7 @@
                 }).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`刪除成功`);
                     }
                 });
             },
@@ -232,22 +235,19 @@
 
             deleteSaleRow(){
                 this.delSaleForm(this.curSaleId);
-                this.saleList.splice(this.idx, 1);
-                this.$message.success('刪除成功');
+                //this.$message.success('刪除成功');
                 this.delSaleVisible = false;
             },
 
             confirmSaleRow(){
                 this.confirmSale(this.curSaleId);
-                this.saleList[this.idx].status = "已銷售"; 
                 this.confirmSaleVisible = false;
-                this.$message.success('物品已銷售');
+                //this.$message.success('物品已銷售');
             },
 
             cancelSaleRow(){
                 this.cancelSale(this.curSaleId);
-                this.saleList.splice(this.idx, 1);
-                this.$message.success('取消成功');
+                //this.$message.success('取消成功');
                 this.cancelSaleVisible = false;
             },
 

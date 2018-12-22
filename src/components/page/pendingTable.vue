@@ -42,8 +42,8 @@
                 <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
                         <el-button size="small" type="primary" @click="showEditPending(scope.$index, scope.row)">編輯</el-button>
-                        <el-button size="small" type="primary" @click="handleArrive(scope.$index, scope.row)">確認抵達</el-button>
-                        <el-button size="small" type="primary" @click="handleCancel(scope.$index, scope.row)">取消轉倉</el-button>
+                        <el-button size="small" type="success" @click="handleArrive(scope.$index, scope.row)">確認抵達</el-button>
+                        <el-button size="small" type="warning" @click="handleCancel(scope.$index, scope.row)">取消轉倉</el-button>
                         <el-button size="small" type="danger" @click="handlePendingDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
@@ -206,7 +206,10 @@
                 this.$axios.post(this.url, {
                     pendingID: pendingID,
                 }).then((res) => {
-                    
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                        this.$message.success(`轉倉成功`);
+                    }
                 });
             },
 
@@ -215,7 +218,10 @@
                 this.$axios.post(this.url, {
                     pendingID: pendingID,
                 }).then((res) => {
-                    
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                        this.$message.success(`取消成功`);
+                    }
                 });
             },
 
@@ -224,7 +230,10 @@
                 this.$axios.post(this.url, {
                     pendingID: pendingID,
                 }).then((res) => {
-                    
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                        this.$message.success(`刪除成功`);
+                    }
                 });
             },
 
@@ -236,6 +245,7 @@
                 }).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`更改成功`);
                     }
                 });
             },
@@ -294,22 +304,22 @@
 
             deletePendingRow(){
                 this.delPendingForm(this.curPendingID);
-                this.pendingList.splice(this.idx, 1);
-                this.$message.success('刪除成功');
+                //this.pendingList.splice(this.idx, 1);
+                //this.$message.success('刪除成功');
                 this.delPendingVisible = false;
             },
 
             confirmPendingRow(){
                 this.confirmArrive(this.curPendingID);
-                this.pendingList[this.idx].status = "已抵達"; 
+                //this.pendingList[this.idx].status = "已抵達"; 
                 this.confirmPendingVisible = false;
-                this.$message.success('物品以抵達');
+                //this.$message.success('物品以抵達');
             },
 
             cancelPendingRow(){
                 this.cancelPending(this.curPendingID);
-                this.pendingList.splice(this.idx, 1);
-                this.$message.success('取消成功');
+                //this.pendingList.splice(this.idx, 1);
+                //this.$message.success('取消成功');
                 this.cancelPendingVisible = false;
             },
 
@@ -331,7 +341,7 @@
                 if(this.checkEditDollar()){
                     this.updatePending(this.editForm);
                     this.editPendingVisible = false;
-                    this.$message.success(`新增成功`);
+                    //this.$message.success(`新增成功`);
                 }
             },
 

@@ -8,8 +8,8 @@
         <div class="container">
             <div class="handle-box">
                 <el-button type="primary" class="handle-del mr10" @click="handleNewPending">多筆商品轉倉</el-button>
-                <el-button type="primary" class="handle-del mr10" @click="handleSale">多筆商品銷售</el-button>
-                <el-button type="primary" class="handle-del mr10" @click="handleNewProduct">新增商品</el-button>
+                <el-button type="success" class="handle-del mr10" @click="handleSale">多筆商品銷售</el-button>
+                <el-button type="warning" class="handle-del mr10" @click="handleNewProduct">新增商品</el-button>
                 <el-select v-model="selectLocation" placeholder="倉庫選擇" class="handle-select mr10">
                     <el-option key="1" label="全部倉庫" value=""></el-option>
                     <el-option key="2" label="美國" value="美國"></el-option>
@@ -26,8 +26,9 @@
                 </el-select>
 
                 <el-select v-model="selectCurrency" placeholder="貨幣選擇" class="handle-select mr10">
-                    <el-option key="1" label="美金" value="美金"></el-option>
-                    <el-option key="2" label="台幣" value="台幣"></el-option>
+                    <el-option key="1" label="原本幣別" value=""></el-option>
+                    <el-option key="2" label="美金" value="美金"></el-option>
+                    <el-option key="3" label="台幣" value="台幣"></el-option>
                 </el-select>
                 <el-input v-model="selectName" placeholder="品名查詢" class="handle-input mr10"></el-input>
                 <h3>1美元 = <el-input v-model="exchange" placeholder="幣值" class="handle-exchange mr10" size="mini"></el-input>台幣</h3>
@@ -482,7 +483,7 @@
                 selectLocation: '',
                 selectType: '',
                 selectName: '',
-                selectCurrency: '美金',
+                selectCurrency: '',
                 exchange: 30,
 
                 editProductVisible: false,
@@ -622,10 +623,19 @@
                 });
                 if(this.selectCurrency === '台幣'){
                     for(var i=0; i<this.tableData.length; i++){
-                        this.tableData[i].pCost = this.storageList[i].pCost * this.exchange;
-                        this.tableData[i].pPrice = this.storageList[i].pPrice * this.exchange;
+                        if(this.tableData[i].pLocation === '美國'){
+                            this.tableData[i].pCost = this.storageList[i].pCost * this.exchange;
+                            this.tableData[i].pPrice = this.storageList[i].pPrice * this.exchange;
+                        }
                     }
                     console.log(this.storageList[0].pCost);
+                }else if(this.selectCurrency === '美金'){
+                    for(var i=0; i<this.tableData.length; i++){
+                        if(this.tableData[i].pLocation === '台灣'){
+                            this.tableData[i].pCost = this.storageList[i].pCost / this.exchange;
+                            this.tableData[i].pPrice = this.storageList[i].pPrice / this.exchange;
+                        }
+                    }
                 }else{
                     for(var i=0; i<this.tableData.length; i++){
                         this.tableData[i].pCost = this.storageList[i].pCost;
@@ -658,6 +668,7 @@
                     console.log(res);
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`更改成功`);
                     }
                 });
             },
@@ -668,6 +679,7 @@
                 this.$axios.post(this.url, this.purchaseForm).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`進貨成功`);
                     }
                 });
             },
@@ -676,20 +688,35 @@
                 this.url = '/server/delStorageList';
                 this.$axios.post(this.url, {
                    pid:pid
-                }).then((res) => {});
+                }).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                        this.$message.success(`刪除成功`);
+                    }
+                });
             },
             insertData(item){
                 this.url = '/server/insertStorageList';
                 if(this.debugMode) console.log(item);
                 item.uploadList = this.imageUrl;
-                this.$axios.post(this.url,item).then((res) => {});
+                this.$axios.post(this.url,item).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                        this.$message.success(`新增成功`);
+                    }
+                });
                 
             },
 
             addPendingForm(pendingForm){
                 this.url = '/server/addPendingForm';
                 if(this.debugMode) console.log(pendingForm);
-                this.$axios.post(this.url,pendingForm).then((res) => {});
+                this.$axios.post(this.url,pendingForm).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                        this.$message.success(`新增成功`);
+                    }
+                });
             },
 
             addSaleForm(saleForm){
@@ -697,6 +724,7 @@
                 this.$axios.post(this.url,saleForm).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`新增成功`);
                     }
                 });
             },
@@ -711,6 +739,7 @@
                 }).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getData();
+                        this.$message.success(`刪除成功`);
                     }
                 });
             },
@@ -973,10 +1002,10 @@
             saveProductEdit() {
                 if(this.checkNewProduct()) {
                     this.editData(this.form);
-                    this.$set(this.storageList, this.idx, this.form);
+                    //this.$set(this.storageList, this.idx, this.form);
                     if(this.debugMode) console.log(this.storageList[this.idx]);
                     this.editProductVisible = false;
-                    this.$message.success(`修改成功`);
+                    //this.$message.success(`修改成功`);
                 }
             },
 
@@ -1014,8 +1043,7 @@
                 if(this.checkNewProduct()){
                     this.insertData(this.form);
                     this.newProductVisible = false;
-                    this.$message.success(`新增成功`);
-                    this.getData();
+                    //this.$message.success(`新增成功`);
                 }
             },
 
@@ -1030,12 +1058,12 @@
             saveNewPending() {
                 if(this.checkNewPending()){
                     this.addPendingForm(this.pendingForm);
-                    for(var i=0; i<this.pendingForm.productList.length; i++){
-                        var idx = this.storageList.findIndex(x=>x.pid===this.pendingForm.productList[i].pid);
-                        this.storageList[idx].pQuantity -= this.pendingForm.productList[i].shipmentCnt;
-                    }
+                    // for(var i=0; i<this.pendingForm.productList.length; i++){
+                    //     var idx = this.storageList.findIndex(x=>x.pid===this.pendingForm.productList[i].pid);
+                    //     this.storageList[idx].pQuantity -= this.pendingForm.productList[i].shipmentCnt;
+                    // }
                     this.newPendingVisible = false;
-                    this.$message.success(`新增成功`);
+                    //this.$message.success(`新增成功`);
                 }
             },
 
@@ -1043,7 +1071,7 @@
                 if(this.checkNewSale()){
                     this.addSaleForm(this.saleForm);
                     this.newSaleVisible = false;
-                    this.$message.success(`新增成功`);
+                    //this.$message.success(`新增成功`);
                 }
             },
 
@@ -1068,8 +1096,8 @@
 /*handle delete*/
             deleteProductRow(){
                 this.delData(this.storageList[this.idx].pid);
-                this.storageList.splice(this.idx, 1);
-                this.$message.success('刪除成功');
+                // this.storageList.splice(this.idx, 1);
+                // this.$message.success('刪除成功');
                 this.delProductVisible = false;
             },
 
@@ -1098,7 +1126,7 @@
                     this.showImgUrl.splice(index, 1);
                 }
                 this.deleteImg(this.delImg,this.form.pid);
-                this.$message.success('刪除成功');
+                //this.$message.success('刪除成功');
                 this.delImgVisible = false;
             },
 

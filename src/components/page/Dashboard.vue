@@ -76,6 +76,7 @@
                 this.$axios.post(this.url, form).then((res) => {
                     if(res.data.errCode === 0) {
                         this.getDollar();
+                        this.$message.success(`更新成功`);
                     }
                 });
             },
@@ -95,7 +96,7 @@
                 if(this.checkEditDollar()){
                     this.updateDollar(this.form);
                     this.editDollarVisible = false;
-                    this.$message.success(`新增成功`);
+                    //this.$message.success(`新增成功`);
                 }
             },
 
