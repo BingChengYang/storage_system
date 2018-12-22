@@ -53,6 +53,11 @@
                         index: 'pendingTable',
                         title: '轉倉單查詢'
                     },
+                    {
+                        icon: 'el-icon-tickets',
+                        index: 'saleTable',
+                        title: '銷售單查詢'
+                    },
                     // {
                     //     icon: 'el-icon-tickets',
                     //     index: 'form',

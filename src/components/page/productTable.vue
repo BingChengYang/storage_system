@@ -7,8 +7,9 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" class="handle-del mr10" @click="newPending">多筆商品轉倉</el-button>
-                <el-button type="primary" class="handle-del mr10" @click="newProduct">新增商品</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="handleNewPending">多筆商品轉倉</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="handleSale">多筆商品銷售</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="handleNewProduct">新增商品</el-button>
                 <el-select v-model="selectLocation" placeholder="倉庫選擇" class="handle-select mr10">
                     <el-option key="1" label="全部倉庫" value=""></el-option>
                     <el-option key="2" label="美國" value="美國"></el-option>
@@ -51,17 +52,18 @@
                 </el-table-column>
                 <el-table-column prop="pImg" label="產品圖片" min-width="80">
                     <template slot-scope="scope">
-                        <el-button size="small" @click="showImg(scope.$index, scope.row)">檢視商品圖片</el-button>
+                        <el-button size="small" @click="handleShowImg(scope.$index, scope.row)">檢視商品圖片</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column prop="pNote" label="產品介紹" min-width="80">
                     <template slot-scope="scope">
-                        <el-button size="small" @click="showNote(scope.$index, scope.row)">檢視商品介紹</el-button>
+                        <el-button size="small" @click="handleShowNote(scope.$index, scope.row)">檢視商品介紹</el-button>
                     </template>
                 </el-table-column>
 
                 <el-table-column label="操作" min-width="150">
                     <template slot-scope="scope">
+                        <el-button size="small" type="primary" @click="handlePurchase(scope.$index, scope.row)">進貨</el-button>
                         <el-button size="small" @click="handleProductEdit(scope.$index, scope.row)">編輯</el-button>
                         <el-button size="small" type="danger" @click="handleProductDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
@@ -69,7 +71,7 @@
             </el-table>
              <a href="https://www.findrate.tw/bank/35/" class="el-button el-button--primary" clase target="_blank" >查詢匯率</a>
         </div>
-
+<!-- ==============================================編輯商品資訊================================================================ -->
         <el-dialog title="編輯" :visible.sync="editProductVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
                 <el-form-item label="品名">
@@ -147,38 +149,7 @@
             </span>
         </el-dialog>
 
-         <el-dialog title="編輯" :visible.sync="editPendingVisible" width="30%">
-            <el-form ref="form" :model="pendingItemForm" label-width="50px">
-                <el-form-item label="出貨數量">
-                    <el-input v-model="pendingItemForm.shipmentCnt"></el-input>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="editPendingVisible = false">取消</el-button>
-                <el-button type="primary" @click="savePendingEdit">確定</el-button>
-            </span>
-        </el-dialog>
-
-         <el-dialog title="編輯" :visible.sync="editDeclareVisible" width="30%">
-            <el-form ref="form" :model="declareItemForm" label-width="50px">
-                <el-form-item label="品名">
-                    <el-input v-model="declareItemForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="數量">
-                    <el-input v-model="declareItemForm.quantity"></el-input>
-                </el-form-item>
-                <el-form-item label="單價">
-                    <el-input v-model="declareItemForm.price"></el-input>
-                </el-form-item>
-
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="editDeclareVisible = false">取消</el-button>
-                <el-button type="primary" @click="saveDeclareEdit">確定</el-button>
-            </span>
-        </el-dialog>
-
-        <!-- Build form for new product -->
+        <!-- ===================================Build form for new product=================================== -->
         <el-dialog title="建立新商品" :visible.sync="newProductVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
                 <el-form-item label="品名">
@@ -247,7 +218,7 @@
             </span>
         </el-dialog>
 
-        <!-- Build pending list form -->
+        <!-- ===================================Build pending list form ===============================================================-->
         <el-dialog title="建立新轉運單" :visible.sync="newPendingVisible" width="30%">
             <h3> {{pendingForm.origin}} -> {{pendingForm.destination}} </h3>
             <el-form ref="form" :model="form" label-width="50px">
@@ -282,15 +253,27 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <el-button type="primary" class="handle-del mr10" @click="newDeclare">建立申報單</el-button>
+            <el-button type="primary" class="handle-del mr10" @click="handleNewDeclare">建立申報單</el-button>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="newPendingVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveNewPending">確定</el-button>
             </span>
         </el-dialog>
 
+        <el-dialog title="編輯" :visible.sync="editPendingVisible" width="30%">
+            <el-form ref="form" :model="pendingItemForm" label-width="50px">
+                <el-form-item label="出貨數量">
+                    <el-input v-model="pendingItemForm.shipmentCnt"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="savePendingEdit">確定</el-button>
+            </span>
+        </el-dialog>
+
         <el-dialog title="建立申報單" :visible.sync="newDeclareVisible" width="30%">
-            <el-button type="primary" class="handle-del mr10" @click="newDeclareItem">新增項目</el-button>
+            <el-button type="primary" class="handle-del mr10" @click="handleNewDeclareItem">新增項目</el-button>
             <el-table :data="declareForm.itemList" border style="width: 100%" ref="multipleTable">
                 <el-table-column prop="name" label="品名" min-width="50">
                 </el-table-column>
@@ -334,8 +317,27 @@
             </span>
         </el-dialog>
 
+        <el-dialog title="編輯" :visible.sync="editDeclareVisible" width="30%">
+            <el-form ref="form" :model="declareItemForm" label-width="50px">
+                <el-form-item label="品名">
+                    <el-input v-model="declareItemForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="數量">
+                    <el-input v-model="declareItemForm.quantity"></el-input>
+                </el-form-item>
+                <el-form-item label="單價">
+                    <el-input v-model="declareItemForm.price"></el-input>
+                </el-form-item>
 
-        <!-- 删除提示框 -->
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editDeclareVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveDeclareEdit">確定</el-button>
+            </span>
+        </el-dialog>
+
+
+        <!--========================================== 删除提示框 =======================================================-->
         <el-dialog title="提示" :visible.sync="delProductVisible" width="300px" center>
             <div class="del-dialog-cnt">刪除不可恢復,確定是否刪除</div>
             <span slot="footer" class="dialog-footer">
@@ -349,6 +351,14 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="delPendingVisible = false">取消</el-button>
                 <el-button type="primary" @click="deletePendingRow">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="提示" :visible.sync="delSaleVisible" width="300px" center>
+            <div class="del-dialog-cnt">刪除不可恢復,確定是否刪除</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delSaleVisible = false">取消</el-button>
+                <el-button type="primary" @click="deleteSaleRow">確定</el-button>
             </span>
         </el-dialog>
 
@@ -367,6 +377,7 @@
                 <el-button type="primary" @click="deleteImgRow">確定</el-button>
             </span>
         </el-dialog>
+        <!-- ============================================================================================================== -->
 
         <el-dialog title="商品介紹" :visible.sync="showNoteVisible" width="40%" center>
             <div><el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="沒有內容" :disabled="true" v-model="note">
@@ -392,6 +403,69 @@
                 <el-button @click="showImgVisible = false">關閉</el-button>
             </span>
         </el-dialog>
+<!-- ==============================================進貨框=============================================== -->
+        <el-dialog title="進貨" :visible.sync="showPurchaseVisible" width="30%">
+            <el-form ref="form" :model="purchaseForm" label-width="50px">
+
+                <el-form-item label="進貨數量">
+                    <el-input v-model="purchaseForm.quantity"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showPurchaseVisible = false">取消</el-button>
+                <el-button type="primary" @click="savePurchase">確定</el-button>
+            </span>
+        </el-dialog>
+<!-- =================================================================================================== -->
+<!-- 建立銷售表 -->
+        <el-dialog title="建立銷售表" :visible.sync="newSaleVisible" width="50%">
+            <el-form ref="form" :model="saleForm" label-width="50px">
+                <el-form-item label="日期">
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="選擇日期" v-model="saleForm.date" style="width: 100%;"></el-date-picker>
+                    </el-col>
+                </el-form-item>
+            </el-form>
+            <el-table :data="saleForm.productList" border style="width: 100%" ref="multipleTable">
+                <el-table-column prop="name" label="品名" min-width="50">
+                </el-table-column>
+                <el-table-column prop="location" label="倉庫" min-width="50">
+                </el-table-column>
+                <el-table-column prop="price" label="售價" min-width="50">
+                </el-table-column>
+                <el-table-column prop="quantity" label="銷售數量" min-width="50">
+                </el-table-column>
+                <el-table-column prop="size" label="尺寸" min-width="50">
+                </el-table-column>
+                <el-table-column prop="color" label="顏色" min-width="50">
+                </el-table-column>
+                <el-table-column label="操作" min-width="100">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="handleSaleEdit(scope.$index, scope.row)">編輯</el-button>
+                        <el-button size="small" type="danger" @click="handleSaleDelete(scope.$index, scope.row)">刪除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="newSaleVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveNewSale">確定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog title="編輯" :visible.sync="editSaleVisible" width="30%">
+            <el-form ref="form" :model="saleItemForm" label-width="50px">
+                <el-form-item label="銷售數量">
+                    <el-input v-model="saleItemForm.quantity"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editSaleVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveSaleEdit">確定</el-button>
+            </span>
+        </el-dialog>
+
+<!-- =================================================================================================== -->
     </div>
 </template>
 
@@ -424,6 +498,25 @@
                 showNoteVisible: false,
                 showImgVisible: false,
                 delImgVisible: false,
+                showPurchaseVisible: false,
+                newSaleVisible: false,
+                editSaleVisible: false,
+                delSaleVisible: false,
+
+                saleForm: {
+                    date: '',
+                    productList:[]
+                },
+
+                saleItemForm: {
+                    pid: '',
+                    location: '',
+                    name: '',
+                    quantity: 0,
+                    color: '',
+                    size: '',
+                    price: 0,
+                },
 
                 form: {
                     pid: '',
@@ -452,8 +545,8 @@
                     origin: '',
                     destination: '',
                     trackingNo: '',
-                    tax: '',
-                    freight: '',
+                    tax: 0,
+                    freight: 0,
                     date: '',
                     productList:[],
                     declareForm:{
@@ -496,6 +589,14 @@
                 imageUrl: [],
                 showImgUrl: [],
                 delImg: '',
+
+                purchaseForm: {
+                    id: 0,
+                    location: '',
+                    cost: 0,
+                    quantity: 0,
+                    originQuantity: 0
+                }
             }
         },
         created() {
@@ -506,20 +607,20 @@
                 // we need to parse again to avoid object reference
                 this.tableData = JSON.parse(JSON.stringify(this.storageList)).filter((d) => {
                     if(this.selectLocation != '' && d.pName.indexOf(this.selectName) > -1){
-                        if(this.selectType == '' && d.pName.indexOf(this.selectName) > -1){
-                            if(this.selectLocation == d.pLocation && d.pName.indexOf(this.selectName) > -1) return d;
+                        if(this.selectType === '' && d.pName.indexOf(this.selectName) > -1){
+                            if(this.selectLocation === d.pLocation && d.pName.indexOf(this.selectName) > -1) return d;
                         }else{
-                            if((this.selectLocation == d.pLocation) && (this.selectType==d.pType) && d.pName.indexOf(this.selectName) > -1) return d;
+                            if((this.selectLocation === d.pLocation) && (this.selectType === d.pType) && d.pName.indexOf(this.selectName) > -1) return d;
                         }
                     }else{
-                        if(this.selectType == '' && d.pName.indexOf(this.selectName) > -1){
+                        if(this.selectType === '' && d.pName.indexOf(this.selectName) > -1){
                             return d;
                         }else{
-                            if(this.selectType==d.pType && d.pName.indexOf(this.selectName) > -1) return d;
+                            if(this.selectType===d.pType && d.pName.indexOf(this.selectName) > -1) return d;
                         }
                     }
                 });
-                if(this.selectCurrency == '台幣'){
+                if(this.selectCurrency === '台幣'){
                     for(var i=0; i<this.tableData.length; i++){
                         this.tableData[i].pCost = this.storageList[i].pCost * this.exchange;
                         this.tableData[i].pPrice = this.storageList[i].pPrice * this.exchange;
@@ -536,6 +637,8 @@
             }
         },
         methods: {
+/***************************************************************************/
+/*ajax*/
             getData() {    
                 this.url = '/server/getStorageList';
                 this.$axios.post(this.url, {
@@ -558,6 +661,17 @@
                     }
                 });
             },
+
+            confirmPurchase(){
+            
+                this.url = '/server/confirmPurchase';
+                this.$axios.post(this.url, this.purchaseForm).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                    }
+                });
+            },
+
             delData(pid){
                 this.url = '/server/delStorageList';
                 this.$axios.post(this.url, {
@@ -578,6 +692,15 @@
                 this.$axios.post(this.url,pendingForm).then((res) => {});
             },
 
+            addSaleForm(saleForm){
+                this.url = '/server/addSaleForm';
+                this.$axios.post(this.url,saleForm).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                    }
+                });
+            },
+
             deleteImg(delImg , pid){
                 this.url = '/server/delImg';
                 delImg = delImg.replace("http://127.0.0.1:3000/",""),
@@ -591,14 +714,8 @@
                     }
                 });
             },
-
-            formatter(row, column) {
-                return row.address;
-            },
-            filterTag(value, row) {
-                return row.tag === value;
-            },
-
+/***************************************************************************/
+/*other function*/
             calAmount(){
                 this.pendingForm.declareForm.amount = 0;
                 for(var i=0; i<this.declareForm.itemList.length; i++){
@@ -606,8 +723,40 @@
                 }    
             },
 
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+            },
+
+/***************************************************************************/
+/*show dialog*/
+            handleSale(){
+                this.saleForm = {
+                    date: '',
+                    productList: []
+                };
+                const length = this.multipleSelection.length;
+                console.log(this.multipleSelection);
+                //check location is the same
+                if(length === 0) this.$message.error(`請選擇商品`);
+                else{
+                    for(var i=0; i<length; i++){
+                        this.saleForm.productList.push(
+                            {
+                                pid: this.multipleSelection[i].pid,
+                                name: this.multipleSelection[i].pName,
+                                quantity: 0,
+                                size: this.multipleSelection[i].pSize,
+                                color: this.multipleSelection[i].pColor,
+                                price: this.multipleSelection[i].pPrice,
+                                location: this.multipleSelection[i].pLocation,
+                            });
+                    }
+                    this.newSaleVisible = true;
+                }
+            },
+
             handleProductEdit(index, row) {
-                this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
+                this.idx = this.storageList.findIndex(x=>x.pid===row.pid);
                 console.log(row.pid);
                 const item = this.storageList[this.idx];
                 this.imageUrl = [];
@@ -633,7 +782,7 @@
             },
 
             handlePendingEdit(index, row) {
-                this.idx = this.pendingForm.productList.findIndex(x=>x.pid==row.pid);
+                this.idx = this.pendingForm.productList.findIndex(x=>x.pid===row.pid);
                 const item = this.pendingForm.productList[this.idx];
                 this.pendingItemForm = {
                     pid: item.pid,
@@ -650,6 +799,20 @@
                 this.editPendingVisible = true;
             },
 
+            handleSaleEdit(index, row) {
+                this.idx = this.saleForm.productList.findIndex(x=>x.pid===row.pid);
+                this.saleItemForm = {
+                    pid: row.pid,
+                    location: row.location,
+                    name: row.name,
+                    color: row.color,
+                    size: row.size,
+                    quantity: row.quantity,
+                    price: row.price,
+                }
+                this.editSaleVisible = true;
+            },
+
             handleDeclareEdit(index, row) {
                 this.idx = index;
                 const item = this.declareForm.itemList[this.idx];
@@ -660,7 +823,7 @@
                 }
                 this.editDeclareVisible = true;
             },
-            newProduct() {
+            handleNewProduct() {
                 this.imageUrl = [];
                 this.form = {
                     pid: '',
@@ -680,7 +843,7 @@
                 this.newProductVisible = true;
             },
 
-            newDeclare() {
+            handleNewDeclare() {
                 this.declareForm = {
                     itemList: [],
                     amount: 0
@@ -689,7 +852,7 @@
                 this.newDeclareVisible = true;
             },
 
-            newDeclareItem() {
+            handleNewDeclareItem() {
                 this.decalreItem = {
                     name: '',
                     quantity: '',
@@ -698,12 +861,12 @@
                 this.newDeclareItemVisible = true;
             },
 
-            showNote(index , row){
+            handleShowNote(index , row){
                 this.note = row.pNote;
                 this.showNoteVisible = true;
             },
 
-            showImg(index , row){
+            handleShowImg(index , row){
                 this.showImgUrl = [];
                 var imgList = JSON.parse(row.pImg).list;
                 console.log(imgList);
@@ -714,22 +877,44 @@
             },
 
             handleProductDelete(index, row) {
-                this.idx = this.storageList.findIndex(x=>x.pid==row.pid);
+                this.idx = this.storageList.findIndex(x=>x.pid===row.pid);
                 this.delProductVisible = true;
             },
+
             handlePendingDelete(index, row) {
-                this.idx = this.pendingForm.productList.findIndex(x=>x.pid==row.pid);
+                this.idx = this.pendingForm.productList.findIndex(x=>x.pid===row.pid);
                 this.delPendingVisible = true;
             },
+
+            handleSaleDelete(index, row) {
+                this.idx = this.saleForm.productList.findIndex(x=>x.pid===row.pid);
+                this.delSaleVisible = true;
+            },
+
             handleDeclareDelete(index, row) {
                 this.idx = index;
                 this.delDeclareVisible = true;
             },
+
             handleDelImg(img){
                 this.delImg = img;
                 this.delImgVisible = true;
             },
-            newPending() {
+
+            handlePurchase(index, row){
+
+                this.purchaseForm = {
+                    id: row.pid,
+                    originQuantity: row.pQuantity,
+                    location: row.pLocation,
+                    cost: row.pCost,
+                    quantity: 0
+                }
+                this.showPurchaseVisible = true;
+
+            },
+
+            handleNewPending() {
                 const length = this.multipleSelection.length;
                 console.log(this.multipleSelection);
                 //check location is the same
@@ -740,14 +925,14 @@
                     for(var i=0; i<length; i++){
                         if(this.multipleSelection[i].pLocation != location) sameLoc = false;
                     }
-                    if(sameLoc == false) this.$message.error(`請選擇相同地點商品`);
+                    if(sameLoc === false) this.$message.error(`請選擇相同地點商品`);
                     else{
                         this.pendingForm = {
                             origin: '',
                             destination: '',
                             trackingNo: '',
-                            tax: '',
-                            freight: '',
+                            tax: 0,
+                            freight: 0,
                             date: '',
                             productList:[],
                             declareForm:{
@@ -758,9 +943,9 @@
                         // 先做單頁
                         this.newPendingVisible = true;
                         this.pendingForm.origin = this.multipleSelection[0].pLocation;
-                        if(this.pendingForm.origin == "美國"){
+                        if(this.pendingForm.origin === "美國"){
                             this.pendingForm.destination = "台灣";
-                        }else if(this.pendingForm.origin == "台灣"){
+                        }else if(this.pendingForm.origin === "台灣"){
                             this.pendingForm.destination = "美國"
                         }
                         this.pendingForm.productList = [];
@@ -781,16 +966,12 @@
                         }
                         if(this.debugMode) console.log(this.pendingForm.productList);
                     }
-                    
                 }
             },
-            handleSelectionChange(val) {
-                this.multipleSelection = val;
-            },
-            // 保存编辑
+/***************************************************************************/
+/*handle save*/
             saveProductEdit() {
-                if(this.checkNewProduct() == false) this.$message.error(`表單尚未填完或格式有誤`);
-                else{
+                if(this.checkNewProduct()) {
                     this.editData(this.form);
                     this.$set(this.storageList, this.idx, this.form);
                     if(this.debugMode) console.log(this.storageList[this.idx]);
@@ -803,6 +984,14 @@
                 if(this.checkShipment()){
                     this.$set(this.pendingForm.productList, this.idx, this.pendingItemForm);
                     this.editPendingVisible = false;
+                    this.$message.success(`修改成功`);
+                }
+            },
+
+            saveSaleEdit() {
+                if(this.checkQuanitity()){
+                    this.$set(this.saleForm.productList, this.idx, this.saleItemForm);
+                    this.editSaleVisible = false;
                     this.$message.success(`修改成功`);
                 }
             },
@@ -830,15 +1019,30 @@
                 }
             },
 
+            savePurchase() {
+                if(this.checkPurchase()){
+                    this.confirmPurchase();
+                    this.showPurchaseVisible = false;
+                }
+            },
+
 
             saveNewPending() {
                 if(this.checkNewPending()){
                     this.addPendingForm(this.pendingForm);
                     for(var i=0; i<this.pendingForm.productList.length; i++){
-                        var idx = this.storageList.findIndex(x=>x.pid==this.pendingForm.productList[i].pid);
+                        var idx = this.storageList.findIndex(x=>x.pid===this.pendingForm.productList[i].pid);
                         this.storageList[idx].pQuantity -= this.pendingForm.productList[i].shipmentCnt;
                     }
                     this.newPendingVisible = false;
+                    this.$message.success(`新增成功`);
+                }
+            },
+
+            saveNewSale() {
+                if(this.checkNewSale()){
+                    this.addSaleForm(this.saleForm);
+                    this.newSaleVisible = false;
                     this.$message.success(`新增成功`);
                 }
             },
@@ -860,7 +1064,8 @@
                 this.newDeclareItemVisible = false;
                 this.$message.success(`新增成功`);
             },
-
+/***************************************************************************/
+/*handle delete*/
             deleteProductRow(){
                 this.delData(this.storageList[this.idx].pid);
                 this.storageList.splice(this.idx, 1);
@@ -872,6 +1077,12 @@
                 this.pendingForm.productList.splice(this.idx, 1);
                 this.$message.success('刪除成功');
                 this.delPendingVisible = false;
+            },
+
+            deleteSaleRow(){
+                this.saleForm.productList.splice(this.idx, 1);
+                this.$message.success('刪除成功');
+                this.delSaleVisible = false;
             },
 
             deleteDeclareRow(){
@@ -902,37 +1113,39 @@
                 }
                 this.getData();
             },
+/***************************************************************************/
+/*check form value*/
 
             checkNewProduct(){
-                if(this.form.pName == '') {
+                if(this.form.pName === '') {
                     this.$message.error(`請填入品名`);
                     return false;
                 }
-                if(this.form.pLocation == ''){
+                if(this.form.pLocation === ''){
                     this.$message.error(`請填入倉庫`);
                     return false;
                 }
-                if(this.form.pType == '') {
+                if(this.form.pType === '') {
                     this.$message.error(`請填入種類`);
                     return false;
                 }
-                if(isNaN(this.form.pCost)) {
+                if(isNaN(this.form.pCost) || this.form.pCost === '') {
                     this.$message.error(`請填入成本`);
                     return false;
                 }
-                if(isNaN(this.form.pPrice)) {
+                if(isNaN(this.form.pPrice) || this.form.pPrice === '') {
                     this.$message.error(`請填入售價`);
                     return false;
                 }
-                if(isNaN(this.form.pQuantity)) {
+                if(isNaN(this.form.pQuantity) || this.form.pQuantity === '') {
                     this.$message.error(`請填入數量`);
                     return false;
                 }
-                if(this.form.pColor == ''){
+                if(this.form.pColor === ''){
                     this.$message.error(`請填入顏色`);
                     return false;
                 }
-                if(this.form.pSize == '') {
+                if(this.form.pSize === '') {
                     this.$message.error(`請填入尺寸`);
                     return false;
                 }
@@ -952,20 +1165,20 @@
             },
 
             checkNewPending(){
-                if(this.pendingForm.trackingNo == '') {
+                if(this.pendingForm.trackingNo === '') {
                     this.$message.error(`請填入Track`);
                     return false;
                 }
-                if(this.pendingForm.date == '') {
+                if(this.pendingForm.date === '') {
                     this.$message.error(`請填入日期`);
                     return false;
                 }
-                if(isNaN(this.pendingForm.tax)) {
-                    this.$message.error(`請填入稅金`);
+                if(isNaN(this.pendingForm.tax)|| this.pendingForm.tax === '') {
+                    this.$message.error(`請填入稅金,之後才填請填0`);
                     return false;
                 }
-                if(isNaN(this.pendingForm.freight)) {
-                    this.$message.error(`請填入運費`);
+                if(isNaN(this.pendingForm.freight)|| this.pendingForm.freight === '') {
+                    this.$message.error(`請填入運費,之後才填請填0`);
                     return false;
                 }
                 if(!isNaN(this.pendingForm.tax) && this.pendingForm.tax < 0){
@@ -979,9 +1192,34 @@
                 return true;
             },
 
+            checkNewSale(){
+                if(this.saleForm.date === '') {
+                    this.$message.error(`請填入日期`);
+                    return false;
+                }
+                return true;
+            },
+
+            checkQuanitity(){
+                var idx = this.storageList.findIndex(x=>x.pid===this.saleForm.productList[this.idx].pid);
+                if(isNaN(this.saleItemForm.quantity) || this.saleItemForm.quantity === '') {
+                    this.$message.error(`表單尚未填完或格式有誤`);
+                    return false;
+                }
+                if(!isNaN(this.saleItemForm.quantity) && this.storageList[idx].pQuantity - this.saleItemForm.quantity < 0){
+                     this.$message.error(`庫存不足`);
+                     return false;
+                }
+                if(!isNaN(this.saleItemForm.quantity) && this.saleItemForm.quantity < 0){
+                     this.$message.error(`銷售數量不能小於0`);
+                     return false;
+                }
+                return true;
+            },
+
             checkShipment(){
-                var idx = this.storageList.findIndex(x=>x.pid==this.pendingForm.productList[this.idx].pid);
-                if(isNaN(this.pendingItemForm.shipmentCnt)) {
+                var idx = this.storageList.findIndex(x=>x.pid===this.pendingForm.productList[this.idx].pid);
+                if(isNaN(this.pendingItemForm.shipmentCnt) || this.pendingItemForm.shipmentCnt==='') {
                     this.$message.error(`表單尚未填完或格式有誤`);
                     return false;
                 }
@@ -995,6 +1233,21 @@
                 }
                 return true;
             },
+
+            checkPurchase(){
+                if(isNaN(this.purchaseForm.quantity) || this.purchaseForm.quantity === ''){
+                    this.$message.error(`請填入金額`);
+                    return false;
+                }
+                if(!isNaN(this.purchaseForm.quantity) && this.purchaseForm.quantity < 0){
+                     this.$message.error(`進貨數量不能小於0`);
+                     return false;
+                }
+                return true;
+            },
+
+/***************************************************************************/
+/*upload img*/
 
             handleAvatarSuccess(res, file) {
                 if(this.debugMode) console.log(file);
@@ -1022,9 +1275,7 @@
                 //if(this.debugMode) 
                 console.log(this.imageUrl);
             },
-            test(){
-                console.log("fking awesome");
-            }
+/***************************************************************************/
         }
     }
 

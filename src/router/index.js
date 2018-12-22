@@ -29,6 +29,11 @@ export default new Router({
                     component: resolve => require(['../components/page/pendingTable.vue'], resolve),
                     meta: { title: '轉倉單查詢', permission: true }
                 },
+                {
+                    path: '/saleTable',
+                    component: resolve => require(['../components/page/saleTable.vue'], resolve),
+                    meta: { title: '銷售單查詢', permission: true }
+                },
                 // {
                 //     path: '/tabs',
                 //     component: resolve => require(['../components/page/Tabs.vue'], resolve),

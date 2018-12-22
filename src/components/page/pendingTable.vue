@@ -41,16 +41,13 @@
                 </el-table-column>
                 <el-table-column label="操作" min-width="180">
                     <template slot-scope="scope">
+                        <el-button size="small" type="primary" @click="showEditPending(scope.$index, scope.row)">編輯</el-button>
                         <el-button size="small" type="primary" @click="handleArrive(scope.$index, scope.row)">確認抵達</el-button>
                         <el-button size="small" type="primary" @click="handleCancel(scope.$index, scope.row)">取消轉倉</el-button>
                         <el-button size="small" type="danger" @click="handlePendingDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="tableLength">
-                </el-pagination>
-            </div>
         </div>
 
         <!-- show product list -->
@@ -87,7 +84,21 @@
             </span>
         </el-dialog>
 
+        <el-dialog title="修改金額" :visible.sync="editPendingVisible" width="30%">
+            <el-form ref="form" :model="editForm" label-width="50px">
 
+                <el-form-item label="稅金">
+                    <el-input v-model="editForm.tax"></el-input>
+                </el-form-item>
+                <el-form-item label="運費">
+                    <el-input v-model="editForm.freight"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editPendingVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveEditPending">確定</el-button>
+            </span>
+        </el-dialog>
 
         <!-- 删除提示框 -->
         <el-dialog title="提示" :visible.sync="delPendingVisible" width="300px" center>
@@ -143,12 +154,18 @@
                 confirmPendingVisible: false,
                 delPendingVisible: false,
                 cancelPendingVisible: false,
+                editPendingVisible: false,
 
                 productList: [],
                 declareForm:{
                     itemList: [],
                     amount: 0
                 },
+
+                editForm: {
+                    tax: 0,
+                    freight: 0
+                }
 
             }
         },
@@ -158,10 +175,10 @@
         computed: {
             data() {
                 this.tableData = this.pendingList.filter((d) => {
-                    if(this.selectStatus == ''){
+                    if(this.selectStatus === ''){
                         return d;
                     }else{
-                        if(this.selectStatus == d.status) return d;
+                        if(this.selectStatus === d.status) return d;
                     }
                 });
                 
@@ -170,10 +187,8 @@
             }
         },
         methods: {
-            // 分页导航
-            handleCurrentChange(val) {
-                this.cur_page = val;
-            },
+/***********************************************************************************************/
+/*ajax*/
             getData() {    
                 this.url = '/server/getPendingList';
                 this.$axios.post(this.url, {
@@ -213,16 +228,29 @@
                 });
             },
 
+            updatePending(form){
+                this.url = '/server/updatePending';
+                this.$axios.post(this.url, {
+                    id: this.curPendingID,
+                    form: form
+                }).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getData();
+                    }
+                });
+            },
+/***********************************************************************************************/
+/*show dialog*/
             showProduct(index,row){
 
-                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
+                this.idx = this.pendingList.findIndex(x=>x.pendingID===row.pendingID);
                 console.log(this.idx);
                 this.productList = this.pendingList[this.idx].productList;
                 this.showProductVisible = true;
             },
 
             showDeclareForm(index,row){
-                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
+                this.idx = this.pendingList.findIndex(x=>x.pendingID===row.pendingID);
                 this.declareForm = this.pendingList[this.idx].declareForm;
                 console.log(this.declareForm);
                 this.showDeclareVisible = true;
@@ -230,29 +258,45 @@
 
             handlePendingDelete(index, row) {
                 this.curPendingID = row.pendingID;
-                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
+                this.idx = this.pendingList.findIndex(x=>x.pendingID===row.pendingID);
                 this.delPendingVisible = true;
             },
+
+            handleArrive(index,row){
+                this.curPendingID = row.pendingID;
+                this.idx = this.pendingList.findIndex(x=>x.pendingID===row.pendingID);
+                if(this.pendingList[this.idx].status === "已抵達") this.$message.error('已運送成功');
+                else this.confirmPendingVisible = true;
+            },
+
+            handleCancel(index,row){
+                this.curPendingID = row.pendingID;
+                this.idx = this.pendingList.findIndex(x=>x.pendingID===row.pendingID);
+                if(this.pendingList[this.idx].status === "已抵達") this.$message.error('已運送成功');
+                else this.cancelPendingVisible = true;
+            },
+
+            showEditPending(index, row){
+                this.curPendingID = row.pendingID;
+                this.editForm = {
+                    origin: row.origin,
+                    destination: row.destination,
+                    trackingNo: row.trackingNo,
+                    tax: row.tax,
+                    freight: row.freight,
+                    date: row.date,
+                    productList: row.productList,
+                    declareForm: row.declareForm
+                }
+                this.editPendingVisible = true;
+            },
+/***********************************************************************************************/
 
             deletePendingRow(){
                 this.delPendingForm(this.curPendingID);
                 this.pendingList.splice(this.idx, 1);
                 this.$message.success('刪除成功');
                 this.delPendingVisible = false;
-            },
-
-            handleArrive(index,row){
-                this.curPendingID = row.pendingID;
-                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
-                if(this.pendingList[this.idx].status == "已抵達") this.$message.error('已運送成功');
-                else this.confirmPendingVisible = true;
-            },
-
-            handleCancel(index,row){
-                this.curPendingID = row.pendingID;
-                this.idx = this.pendingList.findIndex(x=>x.pendingID==row.pendingID);
-                if(this.pendingList[this.idx].status == "已抵達") this.$message.error('已運送成功');
-                else this.cancelPendingVisible = true;
             },
 
             confirmPendingRow(){
@@ -269,6 +313,8 @@
                 this.cancelPendingVisible = false;
             },
 
+/************************************************************************************************/
+
             sortChange:function(column,prop,order){
                 this.isSort = true;
                 this.sortOrder = column.order;
@@ -279,7 +325,27 @@
                     console.log(column.order);
                 }
                 this.getData();
-            }
+            },
+
+            saveEditPending(){
+                if(this.checkEditDollar()){
+                    this.updatePending(this.editForm);
+                    this.editPendingVisible = false;
+                    this.$message.success(`新增成功`);
+                }
+            },
+
+            checkEditDollar(){
+                if(isNaN(this.editForm.tax) || this.editForm.tax === '') {
+                    this.$message.error(`請填入稅金`);
+                    return false;
+                }
+                if(isNaN(this.editForm.freight) || this.editForm.freight === ''){
+                     this.$message.error(`請填入運費`);
+                     return false;
+                }
+                return true;
+            },
         }
     }
 

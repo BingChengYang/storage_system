@@ -13,11 +13,27 @@
                             </div>
                             <div class="user-info-list">美國剩餘金額：<span>{{USDollar}}</span></div>
                             <div class="user-info-list">台灣剩餘金額：<span>{{TWDollar}}</span></div>
+                            <el-button size="small" type="primary" @click="showEditDollar">修改金額</el-button>
                         </el-card>
                     </el-col>
                 </el-row>
             </el-col>
         </el-row>
+        <el-dialog title="修改金額" :visible.sync="editDollarVisible" width="30%">
+            <el-form ref="form" :model="form" label-width="50px">
+
+                <el-form-item label="美金">
+                    <el-input v-model="form.USDollar"></el-input>
+                </el-form-item>
+                <el-form-item label="台幣">
+                    <el-input v-model="form.TWDollar"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editDollarVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveEditDollar">確定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -28,7 +44,13 @@
             return {
                 name: localStorage.getItem('ms_username'),
                 USDollar: 0,
-                TWDollar: 0
+                TWDollar: 0,
+                editDollarVisible: false,
+
+                form: {
+                    USDollar: 0,
+                    TWDollar: 0
+                }
             }
         },
         created (){
@@ -38,9 +60,56 @@
 
         },
         methods: {
+/************************************************************************************************/
+/*ajax*/
             getDollar(){
-                
-            }
+                this.url = '/server/getDollar';
+                this.$axios.post(this.url, {
+                }).then((res) => {
+                    this.USDollar = res.data.USDollar;
+                    this.TWDollar = res.data.TWDollar;
+                });
+            },
+
+            updateDollar(form){
+                this.url = '/server/updateDollar';
+                this.$axios.post(this.url, form).then((res) => {
+                    if(res.data.errCode === 0) {
+                        this.getDollar();
+                    }
+                });
+            },
+/****************************************************************************************************/
+/*show dialog*/
+
+            showEditDollar(){
+                this.form = {
+                    USDollar: this.USDollar,
+                    TWDollar: this.TWDollar
+                }
+                this.editDollarVisible = true;
+            },
+/****************************************************************************************************/
+
+            saveEditDollar(){
+                if(this.checkEditDollar()){
+                    this.updateDollar(this.form);
+                    this.editDollarVisible = false;
+                    this.$message.success(`新增成功`);
+                }
+            },
+
+            checkEditDollar(){
+                if(isNaN(this.form.USDollar) || this.form.USDollar === '') {
+                    this.$message.error(`請填入美金`);
+                    return false;
+                }
+                if(isNaN(this.form.TWDollar) || this.form.TWDollar === ''){
+                     this.$message.error(`請填入台幣`);
+                     return false;
+                }
+                return true;
+            },
 
         }
     }
