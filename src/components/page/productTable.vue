@@ -731,8 +731,8 @@
 
             deleteImg(delImg , pid){
                 this.url = '/server/delImg';
-                delImg = delImg.replace("http://127.0.0.1:3000/",""),
-                console.log(delImg);
+                //delImg = delImg.replace("http://127.0.0.1:3000/","");
+                delImg = delImg.replace("http://starryapi.us-east-1.elasticbeanstalk.com:3000/","");
                 this.$axios.post(this.url,{
                     delImg: delImg,
                     pid: pid
@@ -792,7 +792,8 @@
                 this.showImgUrl = [];
                 var imgList = JSON.parse(row.pImg).list;
                 for(var i=0; i<imgList.length; i++){
-                    this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
+                    //this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
+                    this.showImgUrl.push("http://starryapi.us-east-1.elasticbeanstalk.com:3000/"+imgList[i]);
                 }
                 this.form = {
                     pid: item.pid,
@@ -900,7 +901,8 @@
                 var imgList = JSON.parse(row.pImg).list;
                 console.log(imgList);
                 for(var i=0; i<imgList.length; i++){
-                    this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
+                    //this.showImgUrl.push("http://127.0.0.1:3000/"+imgList[i]);
+                    this.showImgUrl.push("http://starryapi.us-east-1.elasticbeanstalk.com:3000/"+imgList[i]);
                 }
                 this.showImgVisible = true;
             },
