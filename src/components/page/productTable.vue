@@ -222,6 +222,9 @@
                 <el-form-item label="運費">
                     <el-input v-model="pendingForm.freight"></el-input>
                 </el-form-item>
+                <el-form-item label="匯率">
+                    <el-input v-model="pendingForm.exchange"></el-input>
+                </el-form-item>
                 <el-form-item label="日期">
                     <el-col :span="11">
                         <el-date-picker type="date" placeholder="選擇日期" v-model="pendingForm.date" style="width: 100%;"></el-date-picker>
@@ -539,6 +542,7 @@
                     tax: 0,
                     freight: 0,
                     date: '',
+                    exchange: 1,
                     productList:[],
                     declareForm:{
                         itemList: [],
@@ -955,6 +959,7 @@
                             tax: 0,
                             freight: 0,
                             date: '',
+                            exchange: 1,
                             productList:[],
                             declareForm:{
                                 itemList: [],
@@ -964,6 +969,7 @@
                         // 先做單頁
                         this.newPendingVisible = true;
                         this.pendingForm.origin = this.multipleSelection[0].pLocation;
+                        this.pendingForm.exchange = this.exchange;
                         if(this.pendingForm.origin === "美國"){
                             this.pendingForm.destination = "台灣";
                         }else if(this.pendingForm.origin === "台灣"){
