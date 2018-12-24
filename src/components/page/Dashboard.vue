@@ -66,8 +66,8 @@
                 this.url = '/server/getDollar';
                 this.$axios.post(this.url, {
                 }).then((res) => {
-                    this.USDollar = res.data.USDollar;
-                    this.TWDollar = res.data.TWDollar;
+                    this.USDollar = parseFloat(res.data.USDollar.toFixed(2));
+                    this.TWDollar = parseFloat(res.data.TWDollar.toFixed(2));
                 });
             },
 

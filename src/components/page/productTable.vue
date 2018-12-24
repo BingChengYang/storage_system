@@ -618,22 +618,22 @@
                 if(this.selectCurrency === '台幣'){
                     for(var i=0; i<this.tableData.length; i++){
                         if(this.tableData[i].pLocation === '美國'){
-                            this.tableData[i].pCost = (this.storageList[i].pCost * this.exchange).toFixed(2);
-                            this.tableData[i].pPrice = (this.storageList[i].pPrice * this.exchange).toFixed(2);
+                            this.tableData[i].pCost = parseFloat((this.storageList[i].pCost * this.exchange).toFixed(2));
+                            this.tableData[i].pPrice = parseFloat((this.storageList[i].pPrice * this.exchange).toFixed(2));
                         }
                     }
                     console.log(this.storageList[0].pCost);
                 }else if(this.selectCurrency === '美金'){
                     for(var i=0; i<this.tableData.length; i++){
                         if(this.tableData[i].pLocation === '台灣'){
-                            this.tableData[i].pCost = (this.storageList[i].pCost / this.exchange).toFixed(2);
-                            this.tableData[i].pPrice = (this.storageList[i].pPrice / this.exchange).toFixed(2);
+                            this.tableData[i].pCost = parseFloat((this.storageList[i].pCost / this.exchange).toFixed(2));
+                            this.tableData[i].pPrice = parseFloat((this.storageList[i].pPrice / this.exchange).toFixed(2));
                         }
                     }
                 }else{
                     for(var i=0; i<this.tableData.length; i++){
-                        this.tableData[i].pCost = this.storageList[i].pCost;
-                        this.tableData[i].pPrice = this.storageList[i].pPrice;
+                        this.tableData[i].pCost = parseFloat(this.storageList[i].pCost.toFixed(2));
+                        this.tableData[i].pPrice = parseFloat(this.storageList[i].pPrice.toFixed(2));
                     }
                 }
                 this.tableLength = this.tableData.length;
