@@ -103,12 +103,7 @@
                     <el-input v-model="form.pQuantity"></el-input>
                 </el-form-item>
                 <el-form-item label="尺寸">
-                    <el-select v-model="form.pSize">
-                            <el-option key="1" label="XL" value="XL"></el-option>
-                            <el-option key="2" label="L" value="L"></el-option>
-                            <el-option key="3" label="M" value="M"></el-option>
-                            <el-option key="4" label="S" value="S"></el-option>
-                    </el-select>
+                    <el-input v-model="form.pSize"></el-input>
                 </el-form-item>
                 <el-form-item label="顏色">
                     <el-select v-model="form.pColor">
@@ -182,12 +177,7 @@
                     <el-input v-model="form.pQuantity"></el-input>
                 </el-form-item>
                 <el-form-item label="尺寸">
-                    <el-select v-model="form.pSize">
-                            <el-option key="1" label="XL" value="XL"></el-option>
-                            <el-option key="2" label="L" value="L"></el-option>
-                            <el-option key="3" label="M" value="M"></el-option>
-                            <el-option key="4" label="S" value="S"></el-option>
-                    </el-select>
+                    <el-input v-model="form.pSize"></el-input>
                 </el-form-item>
                 <el-form-item label="顏色">
                     <el-select v-model="form.pColor">
@@ -624,16 +614,16 @@
                 if(this.selectCurrency === '台幣'){
                     for(var i=0; i<this.tableData.length; i++){
                         if(this.tableData[i].pLocation === '美國'){
-                            this.tableData[i].pCost = this.storageList[i].pCost * this.exchange;
-                            this.tableData[i].pPrice = this.storageList[i].pPrice * this.exchange;
+                            this.tableData[i].pCost = (this.storageList[i].pCost * this.exchange).toFixed(2);
+                            this.tableData[i].pPrice = (this.storageList[i].pPrice * this.exchange).toFixed(2);
                         }
                     }
                     console.log(this.storageList[0].pCost);
                 }else if(this.selectCurrency === '美金'){
                     for(var i=0; i<this.tableData.length; i++){
                         if(this.tableData[i].pLocation === '台灣'){
-                            this.tableData[i].pCost = this.storageList[i].pCost / this.exchange;
-                            this.tableData[i].pPrice = this.storageList[i].pPrice / this.exchange;
+                            this.tableData[i].pCost = (this.storageList[i].pCost / this.exchange).toFixed(2);
+                            this.tableData[i].pPrice = (this.storageList[i].pPrice / this.exchange).toFixed(2);
                         }
                     }
                 }else{
