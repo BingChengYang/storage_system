@@ -20,6 +20,8 @@
                 </el-table-column>
                 <el-table-column prop="freight" label="運費" min-width="50">
                 </el-table-column>
+                <el-table-column prop="exchange" label="匯率" min-width="50">
+                </el-table-column>
                 <el-table-column prop="date" label="日期" min-width="50">
                 </el-table-column>
                 <el-table-column prop="origin" label="起始點" min-width="50">
@@ -183,7 +185,7 @@
                 });
                 
                 this.tableLength = this.tableData.length;
-                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
+                return this.tableData;
             }
         },
         methods: {
