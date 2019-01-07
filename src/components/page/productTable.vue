@@ -106,14 +106,7 @@
                     <el-input v-model="form.pSize"></el-input>
                 </el-form-item>
                 <el-form-item label="顏色">
-                    <el-select v-model="form.pColor">
-                            <el-option key="1" label="黑" value="黑"></el-option>
-                            <el-option key="2" label="白" value="白"></el-option>
-                            <el-option key="3" label="藍" value="藍"></el-option>
-                            <el-option key="4" label="紅" value="紅"></el-option>
-                            <el-option key="5" label="黃" value="黃"></el-option>
-                            <el-option key="6" label="綠" value="綠"></el-option>
-                    </el-select>
+                    <el-input v-model="form.pColor"></el-input>
                 </el-form-item>
                 <el-form-item label="備註">
                     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="form.pNote">
@@ -180,14 +173,7 @@
                     <el-input v-model="form.pSize"></el-input>
                 </el-form-item>
                 <el-form-item label="顏色">
-                    <el-select v-model="form.pColor">
-                            <el-option key="1" label="黑" value="黑"></el-option>
-                            <el-option key="2" label="白" value="白"></el-option>
-                            <el-option key="3" label="藍" value="藍"></el-option>
-                            <el-option key="4" label="紅" value="紅"></el-option>
-                            <el-option key="5" label="黃" value="黃"></el-option>
-                            <el-option key="6" label="綠" value="綠"></el-option>
-                    </el-select>
+                    <el-input v-model="form.pColor"></el-input>
                 </el-form-item>
                 <el-form-item label="備註">
                     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="form.pNote">
