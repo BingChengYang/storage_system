@@ -35,7 +35,14 @@
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='sortChange'>
                 <el-table-column type="selection" min-width="55"></el-table-column>
-                <el-table-column prop="pName" label="品名" min-width="50">
+                <el-table-column prop="pName" label="品名" min-width="100">
+                </el-table-column>
+                <el-table-column label="操作" min-width="120">
+                    <template slot-scope="scope">
+                        <el-button size="small" type="primary" @click="handlePurchase(scope.$index, scope.row)">進貨</el-button>
+                        <el-button size="small" @click="handleProductEdit(scope.$index, scope.row)">編輯</el-button>
+                        <el-button size="small" type="danger" @click="handleProductDelete(scope.$index, scope.row)">刪除</el-button>
+                    </template>
                 </el-table-column>
                 <el-table-column prop="pLocation" label="所在地" min-width="50">
                 </el-table-column>
@@ -61,16 +68,9 @@
                         <el-button size="small" @click="handleShowNote(scope.$index, scope.row)">檢視商品介紹</el-button>
                     </template>
                 </el-table-column>
-
-                <el-table-column label="操作" min-width="150">
-                    <template slot-scope="scope">
-                        <el-button size="small" type="primary" @click="handlePurchase(scope.$index, scope.row)">進貨</el-button>
-                        <el-button size="small" @click="handleProductEdit(scope.$index, scope.row)">編輯</el-button>
-                        <el-button size="small" type="danger" @click="handleProductDelete(scope.$index, scope.row)">刪除</el-button>
-                    </template>
-                </el-table-column>
             </el-table>
              <a href="https://www.findrate.tw/bank/35/" class="el-button el-button--primary" clase target="_blank" >查詢匯率</a>
+             <el-button type="warning" class="handle-del mr10" @click="handleNewProduct">新增商品</el-button>
         </div>
 <!-- ==============================================編輯商品資訊================================================================ -->
         <el-dialog title="編輯" :visible.sync="editProductVisible" width="30%">
