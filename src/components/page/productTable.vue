@@ -31,6 +31,8 @@
                     <el-option key="3" label="台幣" value="台幣"></el-option>
                 </el-select>
                 <el-input v-model="selectName" placeholder="品名查詢" class="handle-input mr10"></el-input>
+                <el-input v-model="selectColor" placeholder="顏色查詢" class="handle-input mr10"></el-input>
+                <el-input v-model="selectSize" placeholder="尺寸查詢" class="handle-input mr10"></el-input>
                 <h3>1美元 = <el-input v-model="exchange" placeholder="幣值" class="handle-exchange mr10" size="mini"></el-input>台幣</h3>
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange" @sort-change='sortChange'>
@@ -463,6 +465,8 @@
                 selectType: '',
                 selectName: '',
                 selectCurrency: '',
+                selectColor: '',
+                selectSize: '',
                 exchange: 30,
 
                 editProductVisible: false,
@@ -587,39 +591,39 @@
             data() {
                 // we need to parse again to avoid object reference
                 this.tableData = JSON.parse(JSON.stringify(this.storageList)).filter((d) => {
-                    if(this.selectLocation != '' && d.pName.indexOf(this.selectName) > -1){
-                        if(this.selectType === '' && d.pName.indexOf(this.selectName) > -1){
-                            if(this.selectLocation === d.pLocation && d.pName.indexOf(this.selectName) > -1) return d;
+                    if(this.selectLocation != '' && d.pName.indexOf(this.selectName) > -1 && d.pColor.indexOf(this.selectColor) > -1 && d.pSize.indexOf(this.selectSize) > -1){
+                        if(this.selectType === '' && d.pName.indexOf(this.selectName) > -1 && d.pColor.indexOf(this.selectColor) > -1 && d.pSize.indexOf(this.selectSize) > -1){
+                            if(this.selectLocation === d.pLocation && d.pName.indexOf(this.selectName) > -1 && d.pColor.indexOf(this.selectColor) > -1 && d.pSize.indexOf(this.selectSize) > -1) return d;
                         }else{
-                            if((this.selectLocation === d.pLocation) && (this.selectType === d.pType) && d.pName.indexOf(this.selectName) > -1) return d;
+                            if((this.selectLocation === d.pLocation) && (this.selectType === d.pType) && d.pName.indexOf(this.selectName) > -1 && d.pColor.indexOf(this.selectColor) > -1 && d.pSize.indexOf(this.selectSize) > -1) return d;
                         }
                     }else{
-                        if(this.selectType === '' && d.pName.indexOf(this.selectName) > -1){
+                        if(this.selectType === '' && d.pName.indexOf(this.selectName) > -1 && d.pColor.indexOf(this.selectColor) > -1 && d.pSize.indexOf(this.selectSize) > -1){
                             return d;
                         }else{
-                            if(this.selectType===d.pType && d.pName.indexOf(this.selectName) > -1) return d;
+                            if(this.selectType===d.pType && d.pName.indexOf(this.selectName) > -1 && d.pColor.indexOf(this.selectColor) > -1 && d.pSize.indexOf(this.selectSize) > -1) return d;
                         }
                     }
                 });
                 if(this.selectCurrency === '台幣'){
                     for(var i=0; i<this.tableData.length; i++){
                         if(this.tableData[i].pLocation === '美國'){
-                            this.tableData[i].pCost = parseFloat((this.storageList[i].pCost * this.exchange).toFixed(2));
-                            this.tableData[i].pPrice = parseFloat((this.storageList[i].pPrice * this.exchange).toFixed(2));
+                            this.tableData[i].pCost = parseFloat((this.tableData[i].pCost * this.exchange).toFixed(2));
+                            this.tableData[i].pPrice = parseFloat((this.tableData[i].pPrice * this.exchange).toFixed(2));
                         }
                     }
-                    console.log(this.storageList[0].pCost);
+                   
                 }else if(this.selectCurrency === '美金'){
                     for(var i=0; i<this.tableData.length; i++){
                         if(this.tableData[i].pLocation === '台灣'){
-                            this.tableData[i].pCost = parseFloat((this.storageList[i].pCost / this.exchange).toFixed(2));
-                            this.tableData[i].pPrice = parseFloat((this.storageList[i].pPrice / this.exchange).toFixed(2));
+                            this.tableData[i].pCost = parseFloat((this.tableData[i].pCost / this.exchange).toFixed(2));
+                            this.tableData[i].pPrice = parseFloat((this.tableData[i].pPrice / this.exchange).toFixed(2));
                         }
                     }
                 }else{
                     for(var i=0; i<this.tableData.length; i++){
-                        this.tableData[i].pCost = parseFloat(this.storageList[i].pCost.toFixed(2));
-                        this.tableData[i].pPrice = parseFloat(this.storageList[i].pPrice.toFixed(2));
+                        this.tableData[i].pCost = parseFloat(this.tableData[i].pCost.toFixed(2));
+                        this.tableData[i].pPrice = parseFloat(this.tableData[i].pPrice.toFixed(2));
                     }
                 }
                 this.tableLength = this.tableData.length;
