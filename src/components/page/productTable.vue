@@ -22,6 +22,7 @@
                     <el-option key="4" label="包款" value="包款"></el-option>
                     <el-option key="5" label="配件" value="配件"></el-option>
                     <el-option key="6" label="鞋子" value="鞋子"></el-option>
+                    <el-option key="7" label="帽子" value="帽子"></el-option>
                 
                 </el-select>
 
@@ -93,6 +94,7 @@
                         <el-option key="3" label="包款" value="包款"></el-option>
                         <el-option key="4" label="配件" value="配件"></el-option>
                         <el-option key="5" label="鞋子" value="鞋子"></el-option>
+                        <el-option key="6" label="帽子" value="帽子"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
@@ -160,6 +162,7 @@
                         <el-option key="3" label="包款" value="包款"></el-option>
                         <el-option key="4" label="配件" value="配件"></el-option>
                         <el-option key="5" label="鞋子" value="鞋子"></el-option>
+                        <el-option key="6" label="帽子" value="帽子"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="成本">
