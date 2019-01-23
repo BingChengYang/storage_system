@@ -10,6 +10,10 @@
                 <el-button type="primary" class="handle-del mr10" @click="handleNewPending">多筆商品轉倉</el-button>
                 <el-button type="success" class="handle-del mr10" @click="handleSale">多筆商品銷售</el-button>
                 <el-button type="warning" class="handle-del mr10" @click="handleNewProduct">新增商品</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="addPendingProductList">加入轉倉列表</el-button>
+                <el-button type="danger" class="handle-del mr10" @click="clearPendingProductList">清除轉倉列表</el-button>
+                <el-button type="primary" class="handle-del mr10" @click="addSaleProductList">加入銷售列表</el-button>
+                <el-button type="danger" class="handle-del mr10" @click="clearSaleProductList">清除銷售列表</el-button>
                 <el-select v-model="selectLocation" placeholder="倉庫選擇" class="handle-select mr10">
                     <el-option key="1" label="全部倉庫" value=""></el-option>
                     <el-option key="2" label="美國" value="美國"></el-option>
@@ -72,6 +76,10 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="pagination">
+                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="tableLength">
+                </el-pagination>
+            </div>
              <a href="https://www.findrate.tw/bank/35/" class="el-button el-button--primary" clase target="_blank" >查詢匯率</a>
              <el-button type="warning" class="handle-del mr10" @click="handleNewProduct">新增商品</el-button>
         </div>
@@ -459,6 +467,7 @@
         name: 'basetable',
         data() {
             return {
+                cur_page: 1,
                 debugMode: false,
                 url: '/server/getStorageList',
                 storageList: [],
@@ -584,7 +593,9 @@
                     cost: 0,
                     quantity: 0,
                     originQuantity: 0
-                }
+                },
+                waitPending: [],
+                waitSale: []
             }
         },
         created() {
@@ -630,10 +641,16 @@
                     }
                 }
                 this.tableLength = this.tableData.length;
-                return this.tableData;
+                if((this.tableLength / 10) < this.cur_page){
+                    this.cur_page = 1;
+                }
+                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
             }
         },
         methods: {
+            handleCurrentChange(val) {
+                this.cur_page = val;
+            },
 /***************************************************************************/
 /*ajax*/
             getData() {    
@@ -743,6 +760,76 @@
                 this.multipleSelection = val;
             },
 
+            clearSaleProductList() {
+                this.waitSale = [];
+                this.$message.success(`清除銷售列表成功`);
+            },
+
+            clearPendingProductList() {
+                this.waitPending = [];
+                this.$message.success(`清除轉倉列表成功`);
+            },
+
+            addSaleProductList() {
+                if(this.multipleSelection.length === 0){
+                    this.$message.error(`請選擇商品`);
+                }else{
+                    function arrayUnique(array) {
+                        var a = array.concat();
+                        for(var i=0; i<a.length; ++i) {
+                            for(var j=i+1; j<a.length; ++j) {
+                                if(a[i] === a[j])
+                                    a.splice(j--, 1);
+                            }
+                        }
+
+                        return a;
+                    }
+                    this.waitSale = arrayUnique(this.waitSale.concat(this.multipleSelection));
+                    this.$message.success(`加入銷售列表成功`);
+                }
+                
+            },
+
+            addPendingProductList() {
+                if(this.multipleSelection.length === 0){
+                    this.$message.error(`請選擇商品`);
+                }else{
+                    var sameLoc = true;
+                    var location = '';
+                    if( this.waitPending.length > 0){
+                        location = this.waitPending[0].pLocation;
+                    }
+                    else{
+                        location = this.multipleSelection[0].pLocation
+                    }
+                    for(var i=0; i<this.multipleSelection.length; i++){
+                        if(this.multipleSelection[i].pLocation != location){
+                            sameLoc = false;
+                        }
+                    }
+                    
+                    function arrayUnique(array) {
+                        var a = array.concat();
+                        for(var i=0; i<a.length; ++i) {
+                            for(var j=i+1; j<a.length; ++j) {
+                                if(a[i] === a[j])
+                                    a.splice(j--, 1);
+                            }
+                        }
+
+                        return a;
+                    }
+                    if(sameLoc === false){
+                        this.$message.error(`請選擇相同倉庫商品`);
+                    }else{
+                        this.waitPending = arrayUnique(this.waitPending.concat(this.multipleSelection));
+                        this.$message.success(`加入轉倉列表成功`);
+                    }
+                }
+                
+            },
+
 /***************************************************************************/
 /*show dialog*/
             handleSale(){
@@ -750,25 +837,41 @@
                     date: '',
                     productList: []
                 };
-                const length = this.multipleSelection.length;
-                console.log(this.multipleSelection);
-                //check location is the same
-                if(length === 0) this.$message.error(`請選擇商品`);
-                else{
-                    for(var i=0; i<length; i++){
+                if(this.waitSale.length === 0){
+                    if(this.multipleSelection.length === 0){
+                        this.$message.error(`請選擇商品`);
+                    }else{
+                        this.waitSale = this.multipleSelection;
+                        for(var i=0; i<this.waitSale.length; i++){
+                            this.saleForm.productList.push(
+                                {
+                                    pid: this.waitSale[i].pid,
+                                    name: this.waitSale[i].pName,
+                                    quantity: 0,
+                                    size: this.waitSale[i].pSize,
+                                    color: this.waitSale[i].pColor,
+                                    price: this.waitSale[i].pPrice,
+                                    location: this.waitSale[i].pLocation,
+                                });
+                        }
+                        this.newSaleVisible = true;
+
+                    } 
+                }else{
+                    for(var i=0; i<this.waitSale.length; i++){
                         this.saleForm.productList.push(
                             {
-                                pid: this.multipleSelection[i].pid,
-                                name: this.multipleSelection[i].pName,
+                                pid: this.waitSale[i].pid,
+                                name: this.waitSale[i].pName,
                                 quantity: 0,
-                                size: this.multipleSelection[i].pSize,
-                                color: this.multipleSelection[i].pColor,
-                                price: this.multipleSelection[i].pPrice,
-                                location: this.multipleSelection[i].pLocation,
+                                size: this.waitSale[i].pSize,
+                                color: this.waitSale[i].pColor,
+                                price: this.waitSale[i].pPrice,
+                                location: this.waitSale[i].pLocation,
                             });
                     }
                     this.newSaleVisible = true;
-                }
+                } 
             },
 
             handleProductEdit(index, row) {
@@ -933,18 +1036,73 @@
             },
 
             handleNewPending() {
-                const length = this.multipleSelection.length;
-                console.log(this.multipleSelection);
                 //check location is the same
-                if(length === 0) this.$message.error(`請選擇商品`);
+                if(this.waitPending.length === 0){
+                    if(this.multipleSelection.length === 0){
+                        this.$message.error(`請選擇商品`);
+                    }else{
+                        var location = this.multipleSelection[0].pLocation;   
+                        var sameLoc = true;
+                        for(var i=0; i<this.multipleSelection.length;i++){
+                            if(this.multipleSelection[i].pLocation != location){
+                                sameLoc = false;
+                            }
+                        }
+                        if(sameLoc){
+                            this.waitPending = this.multipleSelection;
+                            this.pendingForm = {
+                                origin: '',
+                                destination: '',
+                                trackingNo: '',
+                                tax: 0,
+                                freight: 0,
+                                date: '',
+                                exchange: 1,
+                                productList:[],
+                                declareForm:{
+                                    itemList: [],
+                                    amount: 0
+                                }  
+                            }
+                            // 先做單頁
+                            this.newPendingVisible = true;
+                            this.pendingForm.origin = this.waitPending[0].pLocation;
+                            this.pendingForm.exchange = this.exchange;
+                            if(this.pendingForm.origin === "美國"){
+                                this.pendingForm.destination = "台灣";
+                            }else if(this.pendingForm.origin === "台灣"){
+                                this.pendingForm.destination = "美國"
+                            }
+                            this.pendingForm.productList = [];
+                            for(var i=0; i<this.waitPending.length; i++){
+                                this.pendingForm.productList.push(
+                                    {
+                                        pid: this.waitPending[i].pid,
+                                        name: this.waitPending[i].pName,
+                                        type: this.waitPending[i].pType,
+                                        shipmentCnt: 0,
+                                        size: this.waitPending[i].pSize,
+                                        color: this.waitPending[i].pColor,
+                                        price: this.waitPending[i].pPrice,
+                                        cost: this.waitPending[i].pCost,
+                                        img: this.waitPending[i].pImg,
+                                        note: this.waitPending[i].pNote
+                                    });
+                            }
+                        }else{
+                            this.$message.error(`請選擇相同倉庫商品`);
+                        }
+                    } 
+                }
                 else{
-                    var location = this.multipleSelection[0].pLocation;   
+                    var location = this.waitPending[0].pLocation;   
                     var sameLoc = true;
-                    for(var i=0; i<length; i++){
-                        if(this.multipleSelection[i].pLocation != location) sameLoc = false;
+                    for(var i=0; i<this.waitPending.length;i++){
+                        if(this.waitPending[i].pLocation != location){
+                            sameLoc = false;
+                        }
                     }
-                    if(sameLoc === false) this.$message.error(`請選擇相同地點商品`);
-                    else{
+                    if(sameLoc){
                         this.pendingForm = {
                             origin: '',
                             destination: '',
@@ -961,7 +1119,7 @@
                         }
                         // 先做單頁
                         this.newPendingVisible = true;
-                        this.pendingForm.origin = this.multipleSelection[0].pLocation;
+                        this.pendingForm.origin = this.waitPending[0].pLocation;
                         this.pendingForm.exchange = this.exchange;
                         if(this.pendingForm.origin === "美國"){
                             this.pendingForm.destination = "台灣";
@@ -969,22 +1127,23 @@
                             this.pendingForm.destination = "美國"
                         }
                         this.pendingForm.productList = [];
-                        for(var i=0; i<length; i++){
+                        for(var i=0; i<this.waitPending.length; i++){
                             this.pendingForm.productList.push(
                                 {
-                                    pid: this.multipleSelection[i].pid,
-                                    name: this.multipleSelection[i].pName,
-                                    type: this.multipleSelection[i].pType,
+                                    pid: this.waitPending[i].pid,
+                                    name: this.waitPending[i].pName,
+                                    type: this.waitPending[i].pType,
                                     shipmentCnt: 0,
-                                    size: this.multipleSelection[i].pSize,
-                                    color: this.multipleSelection[i].pColor,
-                                    price: this.multipleSelection[i].pPrice,
-                                    cost: this.multipleSelection[i].pCost,
-                                    img: this.multipleSelection[i].pImg,
-                                    note: this.multipleSelection[i].pNote
+                                    size: this.waitPending[i].pSize,
+                                    color: this.waitPending[i].pColor,
+                                    price: this.waitPending[i].pPrice,
+                                    cost: this.waitPending[i].pCost,
+                                    img: this.waitPending[i].pImg,
+                                    note: this.waitPending[i].pNote
                                 });
                         }
-                        if(this.debugMode) console.log(this.pendingForm.productList);
+                    }else{
+                        this.$message.error(`請選擇相同倉庫商品`);
                     }
                 }
             },
@@ -1054,6 +1213,7 @@
                     //     this.storageList[idx].pQuantity -= this.pendingForm.productList[i].shipmentCnt;
                     // }
                     this.newPendingVisible = false;
+                    this.waitPending = [];
                     //this.$message.success(`新增成功`);
                 }
             },
@@ -1062,6 +1222,7 @@
                 if(this.checkNewSale()){
                     this.addSaleForm(this.saleForm);
                     this.newSaleVisible = false;
+                    this.waitSale = [];
                     //this.$message.success(`新增成功`);
                 }
             },
