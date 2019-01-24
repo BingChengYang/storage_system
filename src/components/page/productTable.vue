@@ -14,6 +14,8 @@
                 <el-button type="danger" class="handle-del mr10" @click="clearPendingProductList">清除轉倉列表</el-button>
                 <el-button type="primary" class="handle-del mr10" @click="addSaleProductList">加入銷售列表</el-button>
                 <el-button type="danger" class="handle-del mr10" @click="clearSaleProductList">清除銷售列表</el-button>
+            </div>
+            <div>
                 <el-select v-model="selectLocation" placeholder="倉庫選擇" class="handle-select mr10">
                     <el-option key="1" label="全部倉庫" value=""></el-option>
                     <el-option key="2" label="美國" value="美國"></el-option>
@@ -35,6 +37,8 @@
                     <el-option key="2" label="美金" value="美金"></el-option>
                     <el-option key="3" label="台幣" value="台幣"></el-option>
                 </el-select>
+            </div>
+            <div>
                 <el-input v-model="selectName" placeholder="品名查詢" class="handle-input mr10"></el-input>
                 <el-input v-model="selectColor" placeholder="顏色查詢" class="handle-input mr10"></el-input>
                 <el-input v-model="selectSize" placeholder="尺寸查詢" class="handle-input mr10"></el-input>
