@@ -645,10 +645,14 @@
                     }
                 }
                 this.tableLength = this.tableData.length;
-                if((this.tableLength / 10) < this.cur_page){
+                console.log(this.tableLength);
+                if(Math.ceil(this.tableLength / 10) < this.cur_page){
                     this.cur_page = 1;
                 }
+                console.log(this.cur_page);
+                //console.log(this.tableData);
                 return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
+                //return this.tableData;
             }
         },
         methods: {
