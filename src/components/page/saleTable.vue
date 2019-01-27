@@ -213,7 +213,7 @@
 /***********************************************************************************************/
 /*show dialog*/
             handleShowNote(index , row){
-                this.note = row.pNote;
+                this.note = row.note;
                 this.showNoteVisible = true;
             },
 
