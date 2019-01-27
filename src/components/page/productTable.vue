@@ -422,6 +422,10 @@
                         <el-date-picker type="date" placeholder="選擇日期" v-model="saleForm.date" style="width: 100%;"></el-date-picker>
                     </el-col>
                 </el-form-item>
+                <el-form-item label="備註">
+                    <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="saleForm.note">
+                    </el-input>
+                </el-form-item>
             </el-form>
             <el-table :data="saleForm.productList" border style="width: 100%" ref="multipleTable">
                 <el-table-column prop="name" label="品名" min-width="50">
@@ -431,6 +435,8 @@
                 <el-table-column prop="price" label="售價" min-width="50">
                 </el-table-column>
                 <el-table-column prop="quantity" label="銷售數量" min-width="50">
+                </el-table-column>
+                <el-table-column prop="profit" label="利潤" min-width="50">
                 </el-table-column>
                 <el-table-column prop="size" label="尺寸" min-width="50">
                 </el-table-column>
@@ -443,7 +449,6 @@
                     </template>
                 </el-table-column>
             </el-table>
-        
             <span slot="footer" class="dialog-footer">
                 <el-button @click="newSaleVisible = false">取消</el-button>
                 <el-button type="primary" @click="saveNewSale">確定</el-button>
@@ -454,6 +459,9 @@
             <el-form ref="form" :model="saleItemForm" label-width="50px">
                 <el-form-item label="銷售數量">
                     <el-input v-model="saleItemForm.quantity"></el-input>
+                </el-form-item>
+                <el-form-item label="售價">
+                    <el-input v-model="saleItemForm.price"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -505,7 +513,8 @@
 
                 saleForm: {
                     date: '',
-                    productList:[]
+                    productList:[],
+                    note: '',
                 },
 
                 saleItemForm: {
@@ -516,6 +525,7 @@
                     color: '',
                     size: '',
                     price: 0,
+                    profit: 0
                 },
 
                 form: {
@@ -843,7 +853,8 @@
             handleSale(){
                 this.saleForm = {
                     date: '',
-                    productList: []
+                    productList: [],
+                    note: '',
                 };
                 if(this.waitSale.length === 0){
                     if(this.multipleSelection.length === 0){
@@ -860,6 +871,8 @@
                                     color: this.waitSale[i].pColor,
                                     price: this.waitSale[i].pPrice,
                                     location: this.waitSale[i].pLocation,
+                                    cost: this.waitSale[i].pCost,
+                                    profit: this.waitSale[i].pPrice - this.waitSale[i].pCost
                                 });
                         }
                         this.newSaleVisible = true;
@@ -876,6 +889,8 @@
                                 color: this.waitSale[i].pColor,
                                 price: this.waitSale[i].pPrice,
                                 location: this.waitSale[i].pLocation,
+                                cost: this.waitSale[i].pCost,
+                                profit: this.waitSale[i].pPrice - this.waitSale[i].pCost
                             });
                     }
                     this.newSaleVisible = true;
@@ -937,6 +952,8 @@
                     size: row.size,
                     quantity: row.quantity,
                     price: row.price,
+                    cost: row.cost,
+                    profit: row.price - row.cost
                 }
                 this.editSaleVisible = true;
             },
@@ -1177,6 +1194,7 @@
 
             saveSaleEdit() {
                 if(this.checkQuanitity()){
+                    this.saleItemForm.profit = this.saleItemForm.price - this .saleItemForm.cost;
                     this.$set(this.saleForm.productList, this.idx, this.saleItemForm);
                     this.editSaleVisible = false;
                     this.$message.success(`修改成功`);

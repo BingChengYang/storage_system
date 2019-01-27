@@ -33,6 +33,12 @@
                         <el-button size="small" type="danger" @click="handleSaleDelete(scope.$index, scope.row)">刪除</el-button>
                     </template>
                 </el-table-column>
+
+                <el-table-column prop="note" label="備註" min-width="80">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="handleShowNote(scope.$index, scope.row)">檢視備註</el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
 
@@ -50,6 +56,8 @@
                 <el-table-column prop="size" label="尺寸" min-width="50">
                 </el-table-column>
                 <el-table-column prop="color" label="顏色" min-width="50">
+                </el-table-column>
+                <el-table-column prop="profit" label="利潤" min-width="50">
                 </el-table-column>
             </el-table>            
             <span slot="footer" class="dialog-footer">
@@ -80,6 +88,15 @@
                 <el-button @click="cancelSaleVisible = false">取消</el-button>
                 <el-button type="primary" @click="cancelSaleRow">確定</el-button>
             </span>
+        </el-dialog>
+
+         <el-dialog title="備註" :visible.sync="showNoteVisible" width="40%" center>
+            <div><el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="沒有內容" :disabled="true" v-model="note">
+            </el-input></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showNoteVisible = false">關閉</el-button>
+            </span>
+
         </el-dialog>
     </div>
 </template>
@@ -112,13 +129,16 @@
                 delSaleVisible: false,
                 cancelSaleVisible: false,
                 editSaleVisible: false,
+                showNoteVisible: false,
 
                 productList: [],
 
                 editForm: {
                     tax: 0,
                     freight: 0
-                }
+                },
+
+                note: '',
 
             }
         },
@@ -192,6 +212,11 @@
 
 /***********************************************************************************************/
 /*show dialog*/
+            handleShowNote(index , row){
+                this.note = row.pNote;
+                this.showNoteVisible = true;
+            },
+
             showProduct(index,row){
                 this.productList = row.productList;
                 this.showProductVisible = true;
