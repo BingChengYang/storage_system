@@ -426,11 +426,20 @@
                     <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="請輸入內容" v-model="saleForm.note">
                     </el-input>
                 </el-form-item>
+                <el-form-item label="總成本">
+                    <el-input :disabled="true" v-model="saleForm.totalCost"></el-input>
+                </el-form-item>
+                <el-form-item label="總利潤">
+                    <el-input :disabled="true" v-model="saleForm.totalProfit"></el-input>
+                </el-form-item>
+
             </el-form>
             <el-table :data="saleForm.productList" border style="width: 100%" ref="multipleTable">
                 <el-table-column prop="name" label="品名" min-width="50">
                 </el-table-column>
                 <el-table-column prop="location" label="倉庫" min-width="50">
+                </el-table-column>
+                <el-table-column prop="cost" label="成本" min-width="50">
                 </el-table-column>
                 <el-table-column prop="price" label="售價" min-width="50">
                 </el-table-column>
@@ -515,6 +524,8 @@
                     date: '',
                     productList:[],
                     note: '',
+                    totalProfit: 0,
+                    totalCost: 0
                 },
 
                 saleItemForm: {
@@ -774,6 +785,15 @@
                 }    
             },
 
+            calCostProfit(){
+                this.saleForm.totalProfit = 0;
+                this.saleForm.totalCost = 0;
+                for(var i=0; i<this.saleForm.productList.length; i++){
+                    this.saleForm.totalProfit += this.saleForm.productList[i].profit * this.saleForm.productList[i].quantity;
+                    this.saleForm.totalCost += this.saleForm.productList[i].cost * this.saleForm.productList[i].quantity;
+                } 
+            },
+
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
@@ -855,6 +875,8 @@
                     date: '',
                     productList: [],
                     note: '',
+                    totalProfit: 0,
+                    totalCost: 0
                 };
                 if(this.waitSale.length === 0){
                     if(this.multipleSelection.length === 0){
@@ -1196,6 +1218,7 @@
                 if(this.checkQuanitity()){
                     this.saleItemForm.profit = this.saleItemForm.price - this .saleItemForm.cost;
                     this.$set(this.saleForm.productList, this.idx, this.saleItemForm);
+                    this.calCostProfit();
                     this.editSaleVisible = false;
                     this.$message.success(`修改成功`);
                 }

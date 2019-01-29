@@ -24,6 +24,12 @@
                     </template>
                 </el-table-column>
 
+                <el-table-column prop="totalProfit" label="總利潤" min-width="50">
+                </el-table-column>
+
+                <el-table-column prop="totalCost" label="總成本" min-width="50">
+                </el-table-column>
+
                 <el-table-column prop="status" label="狀態" min-width="50">
                 </el-table-column>
                 <el-table-column label="操作" min-width="180">
@@ -48,6 +54,8 @@
                 <el-table-column prop="name" label="品名" min-width="50">
                 </el-table-column>
                 <el-table-column prop="location" label="倉庫" min-width="50">
+                </el-table-column>
+                <el-table-column prop="cost" label="成本" min-width="50">
                 </el-table-column>
                 <el-table-column prop="price" label="售價" min-width="50">
                 </el-table-column>
