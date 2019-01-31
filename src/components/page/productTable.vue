@@ -779,7 +779,7 @@
 /***************************************************************************/
 /*other function*/
             calAmount(){
-                this.pendingForm.declareForm.amount = 0;
+                this.declareForm.amount = 0;
                 for(var i=0; i<this.declareForm.itemList.length; i++){
                     this.declareForm.amount += this.declareForm.itemList[i].total;
                 }    
