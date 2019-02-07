@@ -666,13 +666,12 @@
                     }
                 }
                 this.tableLength = this.tableData.length;
-                console.log(this.tableLength);
+                //console.log(this.tableLength);
                 if(Math.ceil(this.tableLength / 10) < this.cur_page){
                     this.cur_page = 1;
                 }
-                console.log(this.cur_page);
                 //console.log(this.tableData);
-                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
+                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page));
                 //return this.tableData;
             }
         },
@@ -698,7 +697,7 @@
                 this.url = '/server/updateStorageList';
                 item.uploadList = this.imageUrl;
                 this.$axios.post(this.url, item).then((res) => {
-                    console.log(res);
+                    //console.log(res);
                     if(res.data.errCode === 0) {
                         this.getData();
                         this.$message.success(`更改成功`);
@@ -1207,6 +1206,7 @@
             },
 
             savePendingEdit() {
+                console.log("123 " + this.pendingForm.date);
                 if(this.checkShipment()){
                     this.$set(this.pendingForm.productList, this.idx, this.pendingItemForm);
                     this.editPendingVisible = false;
