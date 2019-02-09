@@ -1206,7 +1206,7 @@
             },
 
             savePendingEdit() {
-                console.log("123 " + this.pendingForm.date);
+                console.log(this.pendingForm.date.toLocaleString());
                 if(this.checkShipment()){
                     this.$set(this.pendingForm.productList, this.idx, this.pendingItemForm);
                     this.editPendingVisible = false;
@@ -1256,6 +1256,7 @@
 
             saveNewPending() {
                 if(this.checkNewPending()){
+                    this.pendingForm.date = this.pendingForm.date.toLocaleString();
                     this.addPendingForm(this.pendingForm);
                     // for(var i=0; i<this.pendingForm.productList.length; i++){
                     //     var idx = this.storageList.findIndex(x=>x.pid===this.pendingForm.productList[i].pid);
@@ -1269,6 +1270,7 @@
 
             saveNewSale() {
                 if(this.checkNewSale()){
+                    this.saleForm.date = this.saleForm.date.toLocaleString();
                     this.addSaleForm(this.saleForm);
                     this.newSaleVisible = false;
                     this.waitSale = [];
