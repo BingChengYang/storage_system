@@ -46,6 +46,10 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="pagination">
+                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="tableLength">
+                </el-pagination>
+            </div>
         </div>
 
         <!-- show product list -->
@@ -164,10 +168,13 @@
                 });
                 
                 this.tableLength = this.tableData.length;
-                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page)-1);
+                return this.tableData.slice(this.pageSize*(this.cur_page-1), (this.pageSize*this.cur_page));
             }
         },
         methods: {
+            handleCurrentChange(val) {
+                this.cur_page = val;
+            },
 /***********************************************************************************************/
 /*ajax*/
             getData() {    
