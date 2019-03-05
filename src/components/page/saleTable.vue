@@ -13,6 +13,24 @@
                     <el-option key="3" label="已銷售" value="已銷售"></el-option>
                 </el-select>
             </div>
+            <div>
+                <el-input v-model="selectYear" placeholder="年份查詢" class="handle-input mr10"></el-input>
+                <el-select v-model="selectMonth" placeholder="月份選擇" class="handle-select mr10">
+                    <el-option key="1" label="全部月份" value=""></el-option>
+                    <el-option key="2" label="1月" value="1"></el-option>
+                    <el-option key="3" label="2月" value="2"></el-option>
+                    <el-option key="4" label="3月" value="3"></el-option>
+                    <el-option key="5" label="4月" value="4"></el-option>
+                    <el-option key="6" label="5月" value="5"></el-option>
+                    <el-option key="7" label="6月" value="6"></el-option>
+                    <el-option key="8" label="7月" value="7"></el-option>
+                    <el-option key="9" label="8月" value="8"></el-option>
+                    <el-option key="10" label="9月" value="9"></el-option>
+                    <el-option key="11" label="10月" value="10"></el-option>
+                    <el-option key="12" label="11月" value="11"></el-option>
+                    <el-option key="13" label="12月" value="12"></el-option>
+                </el-select>
+            </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @sort-change='sortChange'>
 
                 <el-table-column prop="date" label="日期" min-width="50">
@@ -125,6 +143,8 @@
                 cur_page: 1,
 
                 selectStatus: '',
+                selectYear : '',
+                selectMonth : '',
         
                 curSaleId: -1,
                 idx: -1,
@@ -160,10 +180,11 @@
         computed: {
             data() {
                 this.tableData = this.saleList.filter((d) => {
-                    if(this.selectStatus === ''){
+                    var dateArr = d.date.split('/');
+                    if(this.selectStatus === '' && dateArr[0].indexOf(this.selectYear) > -1 && dateArr[1].indexOf(this.selectMonth) > -1){
                         return d;
                     }else{
-                        if(this.selectStatus === d.status) return d;
+                        if(this.selectStatus === d.status && dateArr[0].indexOf(this.selectYear) > -1 && dateArr[1].indexOf(this.selectMonth) > -1) return d;
                     }
                 });
                 
